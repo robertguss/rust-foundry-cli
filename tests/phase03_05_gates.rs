@@ -190,37 +190,27 @@ fn req088_string_match_product_skills_vs_freeze() {
 }
 
 #[test]
-fn acceptance_req150_pure_cli_named_paths() {
-    // Named scenario coverage as integration tests (stand in for CI job names).
-    let scenarios = [
-        "validate_plan",
-        "generate_missing_dest",
-        "refuse_nonempty",
-        "path_jail",
-        "no_tui_leak",
-    ];
-    // Ensure scenario names documented
-    let evidence = repo().join("docs/evidence/REQ-150-151-acceptance.md");
-    let body = if evidence.exists() {
-        read(&evidence)
-    } else {
-        String::new()
-    };
-    for s in scenarios {
+fn acceptance_req150_points_at_real_named_suite() {
+    // Theater removed: real scenarios live in tests/req150_acceptance.rs (MS-019.1).
+    let suite = repo().join("tests/req150_acceptance.rs");
+    assert!(suite.is_file());
+    let body = read(&suite);
+    for name in [
+        "req150_validate_and_plan_sample",
+        "req150_generate_missing_dest",
+        "req150_refuse_nonempty",
+        "req150_path_jail",
+        "req150_no_tui_leakage",
+        "req150_plan_digests_match_tree",
+    ] {
         assert!(
-            body.contains(s)
-                || s == "validate_plan"
-                || s == "generate_missing_dest"
-                || s == "refuse_nonempty"
-                || s == "path_jail"
-                || s == "no_tui_leak",
-            "document scenario {s}"
+            body.contains(&format!("fn {name}")),
+            "missing real test fn {name} in req150_acceptance.rs"
         );
     }
-    // Live spot-checks already green in plan_integration / spk101 / profiles tests
-    assert!(repo().join("tests/spk101_matrix.rs").is_file());
-    assert!(repo().join("tests/plan_integration.rs").is_file());
-    assert!(repo().join("tests/profiles_tui_spk102.rs").is_file());
+    let evidence = read(&repo().join("docs/evidence/REQ-150-151-acceptance.md"));
+    assert!(evidence.contains("tests/req150_acceptance.rs"));
+    assert!(evidence.contains("req150_refuse_nonempty"));
 }
 
 #[test]
