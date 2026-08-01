@@ -167,6 +167,69 @@ profiles = []
 }
 
 #[test]
+fn generate_tui_profile_has_ratatui_crossterm_deps() {
+    let dir = std::env::temp_dir().join(format!(
+        "foundry-spk102-tui-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&dir).unwrap();
+    let dest = dir.join("with-tui");
+    let spec = dir.join("s.toml");
+    fs::write(
+        &spec,
+        format!(
+            r#"
+schema = 1
+name = "with-tui"
+archetype = "cli"
+destination = "{}"
+profiles = ["tui"]
+"#,
+            dest.display()
+        ),
+    )
+    .unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_foundry"))
+        .args([
+            "generate",
+            "--spec",
+            spec.to_str().unwrap(),
+            "--verify",
+            "none",
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    // TUI-only paths present (REQ-065 / MS-010).
+    assert!(dest.join("src/tui/mod.rs").exists());
+    assert!(dest.join(".agents/skills/add-tui-screen/SKILL.md").exists());
+    // Dependencies actually declared (MS-010.1: "deps present in plan only
+    // when tui selected"), not just the scaffold files.
+    let cargo = fs::read_to_string(dest.join("Cargo.toml")).unwrap();
+    assert!(
+        cargo.contains("ratatui"),
+        "Cargo.toml missing ratatui: {cargo}"
+    );
+    assert!(
+        cargo.contains("crossterm"),
+        "Cargo.toml missing crossterm: {cargo}"
+    );
+    assert!(cargo.contains("clap"), "Cargo.toml missing clap: {cargo}");
+    // Forbidden AI-native surfaces still absent for TUI profile (REQ-151).
+    assert!(!dest.join("CLAUDE.md").exists());
+    assert!(!dest.join(".claude").exists());
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn phase02_evidence_placeholder() {
     // Structural: module map still present
     let _ = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/resolve/mod.rs");

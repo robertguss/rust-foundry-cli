@@ -54,6 +54,35 @@ pub struct DependencyDelta {
     pub dev: bool,
 }
 
+/// Format dependency deltas as `[dependencies]`/`[dev-dependencies]` TOML lines.
+///
+/// Shared by Construct's placeholder expansion and pure render so the bytes
+/// staged always match the digest recorded on the plan (single source of
+/// truth for how a [`DependencyDelta`] becomes a Cargo.toml line).
+pub fn format_dependency_lines(deltas: &[DependencyDelta], dev: bool) -> String {
+    deltas
+        .iter()
+        .filter(|d| d.dev == dev)
+        .map(|d| {
+            if d.features.is_empty() {
+                format!("{} = \"{}\"", d.name, d.version_req)
+            } else {
+                let features = d
+                    .features
+                    .iter()
+                    .map(|f| format!("\"{f}\""))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                format!(
+                    "{} = {{ version = \"{}\", features = [{features}] }}",
+                    d.name, d.version_req
+                )
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// Destination policy decision (predicate per REQ-051; no place yet).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DestinationPolicy {

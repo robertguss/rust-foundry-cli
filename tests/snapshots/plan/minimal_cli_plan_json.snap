@@ -63,7 +63,7 @@ expression: redacted
       "path": ".gitignore"
     },
     {
-      "content_digest": "3a1c031cb6707caa88f16385e2f2c08bc7dbfb7154bb9b40bc9257393feed5e1",
+      "content_digest": "010d5fddc7d7c26e8c23f9534558687f24c220e5b90609176a7e81991efd0d50",
       "mode": "file",
       "path": "AGENTS.md"
     },

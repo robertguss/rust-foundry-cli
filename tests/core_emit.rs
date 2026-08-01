@@ -141,3 +141,40 @@ profiles = []
     }
     let _ = fs::remove_dir_all(&dir);
 }
+
+/// REQ-101: AGENTS.md content contract — must cover project summary,
+/// authority pointers, canonical commands, definition of done, layout map,
+/// boundaries, skill index, and at least one teach-as-you-go note.
+#[test]
+fn agents_md_covers_req101_content_contract() {
+    let cat = load_embedded_catalog().unwrap();
+    let core = cat.units.get("core").unwrap();
+    let (_, body) = core
+        .files
+        .iter()
+        .find(|(p, _)| p == "AGENTS.md")
+        .expect("core unit ships AGENTS.md");
+
+    for (label, needle) in [
+        ("project summary", "## Summary"),
+        ("authority pointers", "## Authority"),
+        ("canonical commands", "## Canonical commands"),
+        ("definition of done", "## Definition of done"),
+        ("layout map", "## Layout"),
+        ("boundaries", "## Boundaries"),
+        ("skill index", "## Skills"),
+        ("teach-as-you-go", "## Why these defaults"),
+    ] {
+        assert!(
+            body.contains(needle),
+            "AGENTS.md missing {label} ({needle})"
+        );
+    }
+    // REQ-107: explicit boundary statements, not just a section header.
+    for needle in ["secrets", "Windows", "CLAUDE.md", "MCP"] {
+        assert!(
+            body.contains(needle),
+            "AGENTS.md missing boundary note: {needle}"
+        );
+    }
+}

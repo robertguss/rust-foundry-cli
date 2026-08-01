@@ -4,9 +4,12 @@ use crate::plan::error::ConstructError;
 
 /// Validate a planned relative path stays inside the project/stage root.
 ///
-/// Hard-fails absolute paths and `..` escapes. Symlink escape is enforced at
-/// render/stage time when the filesystem is available; construct rejects
-/// path strings that are not relative jail-safe components.
+/// Hard-fails absolute paths and `..` escapes. This is a pure string/component
+/// check on the path text; it cannot see the filesystem. `fsx::stage_render_map`
+/// re-validates each joined target stays under the stage root as it writes
+/// (defense in depth), but since every stage directory is created fresh by
+/// Foundry immediately before materializing files, there are no pre-existing
+/// symlinks inside it for a component to escape through.
 pub fn assert_path_jailed(path: &str) -> Result<(), ConstructError> {
     if path.is_empty() {
         return Err(ConstructError::new(

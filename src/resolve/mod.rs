@@ -250,4 +250,57 @@ profiles = {profiles_toml}
         let tui_i = c.unit_ids.iter().position(|u| u == "tui").unwrap();
         assert!(core_i < cli_i && cli_i < tui_i);
     }
+
+    fn fake_unit(id: &str, requires: &[&str]) -> crate::catalog::UnitManifest {
+        crate::catalog::UnitManifest {
+            id: id.to_string(),
+            kind: "profile".to_string(),
+            description: String::new(),
+            requires: requires.iter().map(|s| s.to_string()).collect(),
+            files: Vec::new(),
+        }
+    }
+
+    fn fake_catalog(units: Vec<crate::catalog::UnitManifest>) -> EmbeddedCatalog {
+        let mut map = BTreeMap::new();
+        for u in units {
+            map.insert(u.id.clone(), u);
+        }
+        EmbeddedCatalog {
+            digest: "test-digest".to_string(),
+            units: map,
+        }
+    }
+
+    #[test]
+    fn topo_sort_hard_fails_on_cycle() {
+        // a requires b, b requires a: no valid topological order exists.
+        let catalog = fake_catalog(vec![fake_unit("a", &["b"]), fake_unit("b", &["a"])]);
+        let needed: BTreeSet<String> = ["a", "b"].iter().map(|s| s.to_string()).collect();
+        let err = topo_sort_units(&catalog, &needed).unwrap_err();
+        assert_eq!(err.code, "resolve.cycle");
+    }
+
+    #[test]
+    fn topo_sort_hard_fails_on_missing_requires() {
+        // "a" requires "missing", which is not part of the needed set.
+        let catalog = fake_catalog(vec![fake_unit("a", &["missing"])]);
+        let needed: BTreeSet<String> = ["a"].iter().map(|s| s.to_string()).collect();
+        let err = topo_sort_units(&catalog, &needed).unwrap_err();
+        assert_eq!(err.code, "resolve.missing_requires");
+    }
+
+    #[test]
+    fn resolve_composition_with_catalog_hard_fails_on_cycle() {
+        // core <-> cli cycle: resolve_composition_with_catalog must return the
+        // cycle error, not panic or silently drop units (REQ hard-fail on
+        // unsupported combos).
+        let catalog = fake_catalog(vec![
+            fake_unit("core", &["cli"]),
+            fake_unit("cli", &["core"]),
+        ]);
+        let inputs = inputs_with_profiles("[]");
+        let err = resolve_composition_with_catalog(&inputs, Some(&catalog)).unwrap_err();
+        assert_eq!(err.code, "resolve.cycle");
+    }
 }

@@ -132,6 +132,36 @@ profiles = []
 }
 
 #[test]
+fn plan_failure_json_format_emits_stable_json_error() {
+    // Spec-stage failures (before Construct) must still respect --format json
+    // (REQ-042 stable JSON error shape for agents), not fall back to text.
+    let dir = tempfile_dir();
+    let bad = dir.join("bad.toml");
+    fs::write(
+        &bad,
+        r#"
+schema = 99
+name = "x"
+archetype = "cli"
+destination = "./x"
+profiles = []
+"#,
+    )
+    .unwrap();
+    let output = foundry()
+        .args(["plan", "--spec", bad.to_str().unwrap(), "--format", "json"])
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let v: serde_json::Value = serde_json::from_str(stderr.trim())
+        .unwrap_or_else(|e| panic!("expected JSON error on stderr, got {stderr:?}: {e}"));
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["error"]["code"], "spec.unsupported_schema");
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn plan_empty_name_override_fails() {
     let spec = repo_root().join("examples/minimal-cli.toml");
     let output = foundry()

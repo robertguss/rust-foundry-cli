@@ -2,7 +2,6 @@
 
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 
 use foundry::catalog::load_embedded_catalog;
 
@@ -74,9 +73,20 @@ fn freeze_ci_is_linux_only() {
 
 #[test]
 fn regen_script_is_executable_path() {
-    // Structural: script invoked via bash works (does not require re-running full regen in CI).
+    // The documented workflow runs the script directly
+    // (./scripts/regen-gh-template-snapshot.sh); it must actually be
+    // executable, not just present on disk.
     let script = repo().join("scripts/regen-gh-template-snapshot.sh");
     let meta = fs::metadata(&script).unwrap();
     assert!(meta.is_file());
-    let _ = Command::new("test").arg("-x").arg(&script);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mode = meta.permissions().mode();
+        assert!(
+            mode & 0o111 != 0,
+            "expected {} to have an executable bit set, mode was {mode:o}",
+            script.display()
+        );
+    }
 }

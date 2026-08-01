@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 
 use crate::catalog::{CatalogFileMode, CatalogView};
 use crate::plan::assert_path_jailed;
-use crate::plan::{FileMode, Plan, content_sha256};
+use crate::plan::{FileMode, Plan, content_sha256, format_dependency_lines};
 
 /// One rendered file ready for staging.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -73,7 +73,11 @@ pub fn render(plan: &Plan, catalog: &CatalogView) -> Result<RenderMap, RenderErr
             .body
             .replace("{{name}}", name)
             .replace("{{destination}}", destination)
-            .replace("{{archetype}}", archetype);
+            .replace("{{archetype}}", archetype)
+            .replace(
+                "{{dependencies_toml}}",
+                &format_dependency_lines(&plan.dependency_deltas, false),
+            );
         let bytes = body.into_bytes();
         by_path.insert(file.path.clone(), (map_mode(file.mode), bytes));
     }

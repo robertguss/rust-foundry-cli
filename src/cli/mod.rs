@@ -190,17 +190,9 @@ fn execute(cli: Cli) -> Result<(), ExitCode> {
             out,
         } => {
             let report_format = ReportFormat::from(format);
-            let inputs = match load_and_effective(spec, name, dest, verify) {
-                Ok(i) => i,
-                Err(code) => {
-                    // load_and_effective already printed text error; for JSON
-                    // format re-emit is harder without the SpecError — text path
-                    // is fine for validate-style errors on plan too.
-                    return Err(code);
-                }
-            };
+            let inputs = load_and_effective_for_format(spec, name, dest, verify, report_format)?;
             let catalog = catalog_view_for_effective(&inputs).map_err(|e| {
-                eprintln!("error[{}]: {}", e.0, e.1);
+                emit_error(e.0, &e.1, report_format);
                 ExitCode::from(1)
             })?;
             let plan = construct(&inputs, &catalog)
@@ -297,6 +289,37 @@ fn load_and_effective(
     .map_err(emit_spec_error)
 }
 
+/// Like [`load_and_effective`], but respects `--format json` for spec/normalize
+/// failures too, so `foundry plan --format json` always emits the stable JSON
+/// error shape on stderr rather than falling back to plain text (REQ-042).
+fn load_and_effective_for_format(
+    spec_path: String,
+    name: Option<String>,
+    dest: Option<String>,
+    verify: Option<CliVerifyMode>,
+    format: ReportFormat,
+) -> Result<EffectiveInputs, ExitCode> {
+    let project = load_spec(&spec_path).map_err(|e| emit_spec_error_formatted(e, format))?;
+    normalize_effective_inputs(
+        project,
+        CliOverrides {
+            name,
+            dest,
+            verify: verify.map(Into::into),
+        },
+    )
+    .map_err(|e| emit_spec_error_formatted(e, format))
+}
+
+/// Print `message` prefixed by `code`, in text or as the stable JSON error
+/// shape depending on `format`.
+fn emit_error(code: &str, message: &str, format: ReportFormat) {
+    match format {
+        ReportFormat::Text => eprintln!("error[{code}]: {message}"),
+        ReportFormat::Json => eprintln!("{}", format_error_json(code, message)),
+    }
+}
+
 fn print_validate_ok(inputs: &EffectiveInputs) {
     println!("foundry validate: ok");
     println!("  source: {}", inputs.source);
@@ -345,6 +368,11 @@ fn emit_report(body: &str, out: Option<&str>) -> Result<(), ExitCode> {
 
 fn emit_spec_error(err: SpecError) -> ExitCode {
     eprintln!("error[{}]: {}", err.code, err.message);
+    ExitCode::from(1)
+}
+
+fn emit_spec_error_formatted(err: SpecError, format: ReportFormat) -> ExitCode {
+    emit_error(err.code, &err.message, format);
     ExitCode::from(1)
 }
 

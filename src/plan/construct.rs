@@ -6,6 +6,7 @@ use crate::plan::digest::{content_sha256, seal_plan};
 use crate::plan::error::ConstructError;
 use crate::plan::model::{
     DependencyDelta, DestinationPolicy, FileMode, NormalizedSpecRecord, Plan, PlannedFile,
+    format_dependency_lines,
 };
 use crate::plan::path_jail::assert_path_jailed;
 use crate::resolve::resolve_composition;
@@ -22,13 +23,14 @@ use crate::spec::EffectiveInputs;
 /// warning that generate re-validates.
 pub fn construct(inputs: &EffectiveInputs, catalog: &CatalogView) -> Result<Plan, ConstructError> {
     let composition = resolve_composition(inputs)?;
+    let dependency_deltas = dependency_deltas_for_composition(&composition.ordered_profiles);
 
     let mut planned_files = Vec::with_capacity(catalog.files.len());
     let mut ai_native_paths = Vec::new();
 
     for file in &catalog.files {
         assert_path_jailed(&file.path)?;
-        let body = expand_placeholders(&file.body, inputs);
+        let body = expand_placeholders(&file.body, inputs, &dependency_deltas);
         let digest = content_sha256(body.as_bytes());
         if is_ai_native_path(&file.path) {
             ai_native_paths.push(file.path.clone());
@@ -43,8 +45,6 @@ pub fn construct(inputs: &EffectiveInputs, catalog: &CatalogView) -> Result<Plan
     // Deterministic ordering for plan equality (catalog should already be ordered).
     planned_files.sort_by(|a, b| a.path.cmp(&b.path));
     ai_native_paths.sort();
-
-    let dependency_deltas = stub_dependency_deltas();
 
     // Record canonical profile order (REQ-063) so plan equality is independent
     // of Project Spec profile list order (REQ-040).
@@ -91,23 +91,51 @@ fn map_mode(mode: CatalogFileMode) -> FileMode {
     }
 }
 
-fn expand_placeholders(body: &str, inputs: &EffectiveInputs) -> String {
+fn expand_placeholders(
+    body: &str,
+    inputs: &EffectiveInputs,
+    dependency_deltas: &[DependencyDelta],
+) -> String {
     body.replace("{{name}}", &inputs.name)
         .replace("{{destination}}", &inputs.destination)
         .replace("{{archetype}}", &inputs.archetype)
+        .replace(
+            "{{dependencies_toml}}",
+            &format_dependency_lines(dependency_deltas, false),
+        )
 }
 
 fn is_ai_native_path(path: &str) -> bool {
     path == "AGENTS.md" || path.starts_with(".agents/") || path.starts_with("agents/")
 }
 
-fn stub_dependency_deltas() -> Vec<DependencyDelta> {
-    vec![DependencyDelta {
+/// Dependency deltas for the resolved composition (REQ-041).
+///
+/// `clap` is always required by the `cli` archetype; the `tui` profile adds
+/// `ratatui` + `crossterm` (MS-010.1) only when selected, keeping pure-CLI
+/// plans free of TUI dependencies (SPK-102).
+fn dependency_deltas_for_composition(ordered_profiles: &[String]) -> Vec<DependencyDelta> {
+    let mut deltas = vec![DependencyDelta {
         name: "clap".into(),
         version_req: "4".into(),
         features: vec!["derive".into()],
         dev: false,
-    }]
+    }];
+    if ordered_profiles.iter().any(|p| p == "tui") {
+        deltas.push(DependencyDelta {
+            name: "ratatui".into(),
+            version_req: "0.28".into(),
+            features: vec![],
+            dev: false,
+        });
+        deltas.push(DependencyDelta {
+            name: "crossterm".into(),
+            version_req: "0.28".into(),
+            features: vec![],
+            dev: false,
+        });
+    }
+    deltas
 }
 
 #[cfg(test)]

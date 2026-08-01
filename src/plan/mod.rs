@@ -15,6 +15,6 @@ pub use digest::{compute_plan_sha256, content_sha256, seal_plan};
 pub use error::ConstructError;
 pub use model::{
     DependencyDelta, DestinationPolicy, FileMode, NormalizedSpecRecord, Plan, PlannedFile,
-    ResolvedComposition, STUB_CATALOG_DIGEST,
+    ResolvedComposition, STUB_CATALOG_DIGEST, format_dependency_lines,
 };
 pub use path_jail::assert_path_jailed;
