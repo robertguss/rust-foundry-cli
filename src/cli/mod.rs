@@ -8,6 +8,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::VERSION;
 use crate::catalog::stub_catalog;
+use crate::generate::{self, GenerateError};
 use crate::plan::{ConstructError, construct};
 use crate::report::{ReportFormat, format_error_json, format_plan};
 use crate::spec::{
@@ -70,7 +71,25 @@ enum Commands {
         #[arg(long = "out", value_name = "FILE")]
         out: Option<String>,
     },
-    // generate / catalog land in later milestones
+    /// Generate project: construct → stage → verify → exclusive place (REQ-050).
+    ///
+    /// Non-interactive. Refuses non-empty destinations (REQ-051). No merge/update
+    /// (REQ-052). Exit 0 on success; exit 1 on failure (stage path printed when retained).
+    Generate {
+        /// Project Spec path, or `-` for stdin (REQ-031).
+        #[arg(long = "spec", value_name = "PATH")]
+        spec: String,
+        /// Override TOML `name` (REQ-034; public CLI surface).
+        #[arg(long = "name", value_name = "NAME")]
+        name: Option<String>,
+        /// Override TOML `destination` (REQ-034; public CLI surface).
+        #[arg(long = "dest", value_name = "PATH")]
+        dest: Option<String>,
+        /// Override TOML `verify` (REQ-034; public CLI surface).
+        #[arg(long = "verify", value_enum)]
+        verify: Option<CliVerifyMode>,
+    },
+    // catalog lands in PHASE-02 / MS-007
 }
 
 /// CLI verify override values (matches TOML set).
@@ -157,6 +176,20 @@ fn execute(cli: Cli) -> Result<(), ExitCode> {
             emit_report(&body, out.as_deref())?;
             Ok(())
         }
+        Commands::Generate {
+            spec,
+            name,
+            dest,
+            verify,
+        } => {
+            let inputs = load_and_effective(spec, name, dest, verify)?;
+            let result = generate::generate(&inputs).map_err(emit_generate_error)?;
+            println!("foundry generate: ok");
+            println!("  destination: {}", result.destination.display());
+            println!("  plan_sha256: {}", result.plan.plan_sha256);
+            println!("  files: {}", result.plan.planned_files.len());
+            Ok(())
+        }
     }
 }
 
@@ -238,6 +271,14 @@ fn emit_construct_error(err: &ConstructError, format: ReportFormat) -> ExitCode 
             // Errors go to stderr as JSON so stdout stays clean for piping.
             eprintln!("{}", format_error_json(err.code, &err.message));
         }
+    }
+    ExitCode::from(1)
+}
+
+fn emit_generate_error(err: GenerateError) -> ExitCode {
+    eprintln!("error[{}]: {}", err.code, err.message);
+    if let Some(stage) = &err.stage_path {
+        eprintln!("stage retained for inspect: {}", stage.display());
     }
     ExitCode::from(1)
 }
