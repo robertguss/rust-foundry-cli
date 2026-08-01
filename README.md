@@ -7,6 +7,18 @@ This repository is the **product implementation**. Research, specification, and
 planning live in [rust-foundry](https://github.com/robertguss/rust-foundry)
 (local sibling: `../rust-foundry`).
 
+## User guide
+
+End-user documentation lives in [`docs/user/`](docs/user/README.md):
+
+- [Installation](docs/user/install.md)
+- [Quickstart](docs/user/quickstart.md)
+- [Project Spec reference](docs/user/project-spec.md)
+- [Command reference](docs/user/commands.md)
+- [Catalog and profiles](docs/user/catalog.md)
+- [Using a generated project](docs/user/generated-project.md)
+- [Troubleshooting](docs/user/troubleshooting.md)
+
 |                       |                                                                         |
 | --------------------- | ----------------------------------------------------------------------- |
 | **Crate / package**   | `foundry`                                                               |
