@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "rust_foundry_cli",
+  "project_id": "c696c3bc-33d7-448f-ac8f-8d2952123cbc"
+}
