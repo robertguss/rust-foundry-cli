@@ -1,9 +1,10 @@
 //! MS-003.3: Plan model populates every REQ-041 / §11.2 element.
 
 use foundry::VERSION;
+use foundry::catalog::STUB_CATALOG_DIGEST;
 use foundry::plan::{
     DependencyDelta, DestinationPolicy, FileMode, NormalizedSpecRecord, Plan, PlannedFile,
-    ResolvedComposition, STUB_CATALOG_DIGEST, content_sha256, seal_plan,
+    ResolvedComposition, content_sha256, seal_plan,
 };
 use foundry::spec::VerifyMode;
 
