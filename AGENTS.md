@@ -15,11 +15,16 @@ Do not invent REQs, demote locks, or treat chat history as authority.
 ## Current delivery position
 
 - **Phase:** PHASE-01 — Foundry CLI, Construct, write safety
-- **Completed:** MS-001 (product repository bootstrap)
-- **Next:** MS-002 — Spec parse and `validate` command
-- **Strict DAG after MS-002:** MS-003 → MS-004 (SPK-100) → MS-005 → MS-006 (SPK-101)
+- **Completed:** MS-001 (bootstrap), MS-002 (`validate` + schema 1 + denylist)
+- **Next:** MS-003 — Pure Construct `plan` command
+- **Strict DAG:** MS-003 → MS-004 (SPK-100) → MS-005 → MS-006 (SPK-101)
 - **Not yet:** embedded catalog (MS-007), Core emit (MS-008), MS-021 dogfood,
   profiles/TUI (MS-009/MS-010)
+
+## Secret field denylist (REQ-033)
+
+Case-insensitive **field names** (any nesting): `password`, `secret`, `token`,
+`api_key`, `private_key`, `access_key`, `client_secret`.
 
 ## Package layout (revised-spec §10.1)
 

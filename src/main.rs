@@ -1,5 +1,7 @@
 //! Process boundary for the `foundry` binary.
 
-fn main() {
-    foundry::cli::run();
+use std::process::ExitCode;
+
+fn main() -> ExitCode {
+    foundry::cli::run()
 }

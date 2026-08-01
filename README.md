@@ -14,7 +14,7 @@ planning live in [rust-foundry](https://github.com/robertguss/rust-foundry)
 | **Rust** | edition 2024; `rust-version` floor 1.85 (product on stable) |
 | **Hosts** | Linux required (CI); macOS optional; **no Windows** |
 | **Current phase** | **PHASE-01** — CLI + Construct + write safety |
-| **Current milestone** | **MS-001 complete** → next **MS-002** |
+| **Current milestone** | **MS-002 complete** → next **MS-003** |
 
 ## Specification authority
 
@@ -30,22 +30,19 @@ Agent rules for this repo: [`AGENTS.md`](AGENTS.md).
 
 ## Status
 
-MS-001 scaffold is in place:
+PHASE-01 in progress:
 
-- Single-crate module map (§10.1 stubs)
-- Linux-only GitHub Actions CI
-- `foundry version` command
-- Authority copies of revised spec, revised plan, and Blueprint
+- MS-001: Single-crate module map, Linux-only CI, `foundry version`
+- MS-002: TOML schema 1 parse; denylist; `foundry validate --spec`
 
-PHASE-01 next milestones:
-
-| MS | Outcome |
-| -- | ------- |
-| MS-002 | TOML schema 1 parse; denylist; `validate` |
-| MS-003 | Pure Construct `plan` (write-free) |
-| MS-004 | SPK-100 golden plan freeze |
-| MS-005 | Stage / place / `generate` lifecycle |
-| MS-006 | SPK-101 emptiness/place/jail matrix |
+| MS | Outcome | Status |
+| -- | ------- | ------ |
+| MS-001 | Product repo bootstrap | Done |
+| MS-002 | Spec parse + `validate` | Done |
+| MS-003 | Pure Construct `plan` (write-free) | Next |
+| MS-004 | SPK-100 golden plan freeze | Pending |
+| MS-005 | Stage / place / `generate` lifecycle | Pending |
+| MS-006 | SPK-101 emptiness/place/jail matrix | Pending |
 
 ## Quickstart
 
@@ -53,9 +50,9 @@ PHASE-01 next milestones:
 # From this repo root
 cargo test
 cargo run -- version
+cargo run -- validate --spec ./examples/minimal-cli.toml
 
-# Intended dry-run workflow (once MS-002/MS-003 land):
-# cargo run -- validate --spec ./examples/minimal-cli.toml
+# After MS-003:
 # cargo run -- plan --spec ./examples/minimal-cli.toml
 # generate after MS-005:
 # cargo run -- generate --spec ./examples/minimal-cli.toml --dest ./out
