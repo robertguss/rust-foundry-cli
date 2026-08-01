@@ -8,7 +8,6 @@ use foundry::render::render;
 use foundry::spec::{CliOverrides, normalize_effective_inputs};
 use foundry::spec::{EffectiveInputs, SECRET_FIELD_DENYLIST, VerifyMode, parse_spec_str};
 use std::fs;
-use std::path::PathBuf;
 
 #[test]
 fn path_jail_exhaustive_escapes() {
@@ -121,6 +120,8 @@ profiles = []
 
 #[test]
 fn denylist_nested_and_array_table() {
+    // Denylist walk runs before unknown-key checks (validate_raw). Nested denied
+    // names under unknown tables must still hard-fail as spec.secret_field.
     let bodies = [
         r#"
 schema = 1
@@ -140,14 +141,7 @@ profiles = []
 [[items]]
 Token = "x"
 "#,
-    ];
-    for body in bodies {
-        // unknown keys may fire first for nested top-level unknown — force denylist under allowed path
-        // nested under description isn't allowed. Use only denylist-named top-level via casing.
-        let _ = body;
-    }
-    // Nested under unknown key: denylist walks first.
-    let body = r#"
+        r#"
 schema = 1
 name = "x"
 archetype = "cli"
@@ -155,14 +149,16 @@ destination = "./x"
 profiles = []
 [cfg]
 PASSWORD = "x"
-"#;
-    let err = parse_spec_str(body, "<t>").unwrap_err();
-    // either secret_field (denylist first) or unknown_key
-    assert!(
-        err.code == "spec.secret_field" || err.code == "spec.unknown_key",
-        "{}",
-        err.code
-    );
+"#,
+    ];
+    for body in bodies {
+        let err = parse_spec_str(body, "<t>").unwrap_err();
+        assert_eq!(
+            err.code, "spec.secret_field",
+            "expected denylist hit, got {} for:\n{body}",
+            err.code
+        );
+    }
 }
 
 /// ASCII case variants: original, upper, lower, mixed (first upper).
@@ -197,10 +193,4 @@ profiles = []
     let plan = construct(&inputs, &cat).unwrap();
     let map = render(&plan, &cat).unwrap();
     assert_eq!(map.len(), plan.planned_files.len());
-}
-
-// silence unused import if PathBuf only for docs
-#[allow(dead_code)]
-fn _p() -> PathBuf {
-    PathBuf::new()
 }

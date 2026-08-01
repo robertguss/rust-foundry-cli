@@ -2,6 +2,7 @@
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::{Mutex, MutexGuard};
 use std::time::Instant;
 
 use foundry::catalog::stub_catalog;
@@ -11,6 +12,9 @@ use foundry::verify::{
     ForcedFail, STRIPPED_ENV_KEYS, TieredVerify, VerifyHook, VerifyOutcome, is_stripped_env_key,
     run_argv_sanitized, sanitized_env,
 };
+
+/// Serializes host-env mutations across parallel tests in this binary.
+static ENV_LOCK: Mutex<()> = Mutex::new(());
 
 fn sandbox(tag: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!(
@@ -26,15 +30,41 @@ fn sandbox(tag: &str) -> PathBuf {
     dir
 }
 
-/// Edition 2024: env mutation is unsafe; tests document intentional host pollution.
-fn set_env(key: &str, val: &str) {
-    // SAFETY: single-threaded test pollution for hygiene fixtures only.
-    unsafe { std::env::set_var(key, val) };
+/// Temporary host env pollution. Restores prior values on drop (including panic).
+///
+/// Edition 2024: `set_var` / `remove_var` are unsafe. Mutations are held under
+/// [`ENV_LOCK`] so parallel tests in this binary cannot interleave.
+struct EnvPollution {
+    _lock: MutexGuard<'static, ()>,
+    previous: Vec<(String, Option<String>)>,
 }
 
-fn clear_env(key: &str) {
-    // SAFETY: restore host env after pollution fixtures.
-    unsafe { std::env::remove_var(key) };
+impl EnvPollution {
+    fn apply(pairs: &[(&str, &str)]) -> Self {
+        let lock = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let mut previous = Vec::with_capacity(pairs.len());
+        for &(key, val) in pairs {
+            previous.push((key.to_string(), std::env::var(key).ok()));
+            // SAFETY: exclusive under ENV_LOCK; Drop restores prior state.
+            unsafe { std::env::set_var(key, val) };
+        }
+        Self {
+            _lock: lock,
+            previous,
+        }
+    }
+}
+
+impl Drop for EnvPollution {
+    fn drop(&mut self) {
+        for (key, prev) in self.previous.drain(..).rev() {
+            // SAFETY: still hold ENV_LOCK via `_lock`.
+            match prev {
+                Some(v) => unsafe { std::env::set_var(&key, v) },
+                None => unsafe { std::env::remove_var(&key) },
+            }
+        }
+    }
 }
 
 #[test]
@@ -48,12 +78,14 @@ fn stripped_keys_documented() {
 
 #[test]
 fn sanitized_env_excludes_host_rustflags_and_target_dir() {
-    set_env("RUSTFLAGS", "--cfg foundry_host_pollution_must_not_leak");
-    set_env(
-        "CARGO_TARGET_DIR",
-        "/tmp/foundry-host-target-dir-must-not-leak",
-    );
-    set_env("CARGO_ENCODED_RUSTFLAGS", "host-encoded-must-not-leak");
+    let _pollution = EnvPollution::apply(&[
+        ("RUSTFLAGS", "--cfg foundry_host_pollution_must_not_leak"),
+        (
+            "CARGO_TARGET_DIR",
+            "/tmp/foundry-host-target-dir-must-not-leak",
+        ),
+        ("CARGO_ENCODED_RUSTFLAGS", "host-encoded-must-not-leak"),
+    ]);
 
     let env = sanitized_env();
     let keys: Vec<_> = env.iter().map(|(k, _)| k.as_str()).collect();
@@ -69,20 +101,17 @@ fn sanitized_env_excludes_host_rustflags_and_target_dir() {
             "leaked value via {k}={v}"
         );
     }
-
-    clear_env("RUSTFLAGS");
-    clear_env("CARGO_TARGET_DIR");
-    clear_env("CARGO_ENCODED_RUSTFLAGS");
 }
 
 #[test]
 fn host_rustflags_cannot_affect_verify_subprocess() {
     let dir = sandbox("env-hygiene");
-    set_env("RUSTFLAGS", "--cfg foundry_host_pollution_must_not_leak");
-    set_env(
-        "CARGO_TARGET_DIR",
-        dir.join("host-target").to_string_lossy().as_ref(),
-    );
+    let host_target = dir.join("host-target");
+    let host_target_s = host_target.to_string_lossy().into_owned();
+    let _pollution = EnvPollution::apply(&[
+        ("RUSTFLAGS", "--cfg foundry_host_pollution_must_not_leak"),
+        ("CARGO_TARGET_DIR", host_target_s.as_str()),
+    ]);
 
     let outcome = run_argv_sanitized(
         &dir,
@@ -99,8 +128,7 @@ fn host_rustflags_cannot_affect_verify_subprocess() {
         "host RUSTFLAGS/CARGO_TARGET_DIR leaked into verify subprocess: {outcome:?}"
     );
 
-    clear_env("RUSTFLAGS");
-    clear_env("CARGO_TARGET_DIR");
+    drop(_pollution);
     let _ = fs::remove_dir_all(&dir);
 }
 
