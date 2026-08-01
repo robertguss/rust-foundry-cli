@@ -1,10 +1,15 @@
 //! Clap wiring only (I/O boundary). Domain logic must not live only here.
 
+use std::fs;
+use std::path::Path;
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::VERSION;
+use crate::catalog::stub_catalog;
+use crate::plan::{ConstructError, construct};
+use crate::report::{ReportFormat, format_error_json, format_plan};
 use crate::spec::{
     CliOverrides, EffectiveInputs, SpecError, VerifyMode, load_spec, normalize_effective_inputs,
 };
@@ -31,17 +36,41 @@ enum Commands {
         /// Project Spec path, or `-` for stdin (REQ-031).
         #[arg(long = "spec", value_name = "PATH")]
         spec: String,
-        /// Override TOML `name` (REQ-034).
+        /// Override TOML `name` (REQ-034; public CLI surface).
         #[arg(long = "name", value_name = "NAME")]
         name: Option<String>,
-        /// Override TOML `destination` (REQ-034).
+        /// Override TOML `destination` (REQ-034; public CLI surface).
         #[arg(long = "dest", value_name = "PATH")]
         dest: Option<String>,
-        /// Override TOML `verify` (REQ-034).
+        /// Override TOML `verify` (REQ-034; public CLI surface).
         #[arg(long = "verify", value_enum)]
         verify: Option<CliVerifyMode>,
     },
-    // plan / generate / catalog land in later milestones
+    /// Emit Generation Plan (write-free w.r.t. destination; REQ-040..043).
+    ///
+    /// Non-interactive. Exit 0 on success; exit 1 on spec/resolve/construct
+    /// failure. Does not prompt (REQ-021/023).
+    Plan {
+        /// Project Spec path, or `-` for stdin (REQ-031).
+        #[arg(long = "spec", value_name = "PATH")]
+        spec: String,
+        /// Override TOML `name` (REQ-034; public CLI surface).
+        #[arg(long = "name", value_name = "NAME")]
+        name: Option<String>,
+        /// Override TOML `destination` (REQ-034; public CLI surface).
+        #[arg(long = "dest", value_name = "PATH")]
+        dest: Option<String>,
+        /// Override TOML `verify` (REQ-034; public CLI surface).
+        #[arg(long = "verify", value_enum)]
+        verify: Option<CliVerifyMode>,
+        /// Report format: `text` (default) or `json` (REQ-042).
+        #[arg(long = "format", value_enum, default_value_t = CliReportFormat::Text)]
+        format: CliReportFormat,
+        /// Write plan report to FILE (not destination place; REQ-043 exception).
+        #[arg(long = "out", value_name = "FILE")]
+        out: Option<String>,
+    },
+    // generate / catalog land in later milestones
 }
 
 /// CLI verify override values (matches TOML set).
@@ -58,6 +87,23 @@ impl From<CliVerifyMode> for VerifyMode {
             CliVerifyMode::None => VerifyMode::None,
             CliVerifyMode::Default => VerifyMode::Default,
             CliVerifyMode::Strict => VerifyMode::Strict,
+        }
+    }
+}
+
+/// CLI plan report format.
+#[derive(Debug, Clone, Copy, ValueEnum, Default)]
+enum CliReportFormat {
+    #[default]
+    Text,
+    Json,
+}
+
+impl From<CliReportFormat> for ReportFormat {
+    fn from(value: CliReportFormat) -> Self {
+        match value {
+            CliReportFormat::Text => ReportFormat::Text,
+            CliReportFormat::Json => ReportFormat::Json,
         }
     }
 }
@@ -85,6 +131,30 @@ fn execute(cli: Cli) -> Result<(), ExitCode> {
         } => {
             let project = load_and_effective(spec, name, dest, verify)?;
             print_validate_ok(&project);
+            Ok(())
+        }
+        Commands::Plan {
+            spec,
+            name,
+            dest,
+            verify,
+            format,
+            out,
+        } => {
+            let report_format = ReportFormat::from(format);
+            let inputs = match load_and_effective(spec, name, dest, verify) {
+                Ok(i) => i,
+                Err(code) => {
+                    // load_and_effective already printed text error; for JSON
+                    // format re-emit is harder without the SpecError — text path
+                    // is fine for validate-style errors on plan too.
+                    return Err(code);
+                }
+            };
+            let plan = construct(&inputs, &stub_catalog())
+                .map_err(|e| emit_construct_error(&e, report_format))?;
+            let body = format_plan(&plan, report_format);
+            emit_report(&body, out.as_deref())?;
             Ok(())
         }
     }
@@ -127,7 +197,47 @@ fn print_validate_ok(inputs: &EffectiveInputs) {
     }
 }
 
+fn emit_report(body: &str, out: Option<&str>) -> Result<(), ExitCode> {
+    match out {
+        None => {
+            print!("{body}");
+            if !body.ends_with('\n') {
+                println!();
+            }
+            Ok(())
+        }
+        Some(path) => {
+            if let Some(parent) = Path::new(path).parent() {
+                if !parent.as_os_str().is_empty() {
+                    fs::create_dir_all(parent).map_err(|e| {
+                        eprintln!("error[report.write]: cannot create parent for {path}: {e}");
+                        ExitCode::from(1)
+                    })?;
+                }
+            }
+            fs::write(path, body).map_err(|e| {
+                eprintln!("error[report.write]: cannot write {path}: {e}");
+                ExitCode::from(1)
+            })?;
+            Ok(())
+        }
+    }
+}
+
 fn emit_spec_error(err: SpecError) -> ExitCode {
     eprintln!("error[{}]: {}", err.code, err.message);
+    ExitCode::from(1)
+}
+
+fn emit_construct_error(err: &ConstructError, format: ReportFormat) -> ExitCode {
+    match format {
+        ReportFormat::Text => {
+            eprintln!("error[{}]: {}", err.code, err.message);
+        }
+        ReportFormat::Json => {
+            // Errors go to stderr as JSON so stdout stays clean for piping.
+            eprintln!("{}", format_error_json(err.code, &err.message));
+        }
+    }
     ExitCode::from(1)
 }
