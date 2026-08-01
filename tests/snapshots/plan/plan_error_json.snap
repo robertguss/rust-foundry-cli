@@ -1,0 +1,11 @@
+---
+source: tests/plan_snapshots.rs
+expression: raw
+---
+{
+  "error": {
+    "code": "plan.path_jail",
+    "message": "path escapes project root via '..': \"../x\""
+  },
+  "ok": false
+}

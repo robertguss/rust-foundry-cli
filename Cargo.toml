@@ -24,6 +24,7 @@ sha2 = "0.11.0"
 toml = "0.8"
 
 [dev-dependencies]
+insta = "1.48.0"
 
 [profile.dev]
 # Keep defaults; product dogfood gates expand in later milestones.
