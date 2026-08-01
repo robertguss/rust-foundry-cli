@@ -46,13 +46,15 @@ pub fn construct(inputs: &EffectiveInputs, catalog: &CatalogView) -> Result<Plan
 
     let dependency_deltas = stub_dependency_deltas();
 
+    // Record canonical profile order (REQ-063) so plan equality is independent
+    // of Project Spec profile list order (REQ-040).
     let normalized_spec = NormalizedSpecRecord {
         schema: inputs.schema,
         name: inputs.name.clone(),
         description: inputs.description.clone(),
         archetype: inputs.archetype.clone(),
         destination: inputs.destination.clone(),
-        profiles: inputs.profiles.clone(),
+        profiles: composition.ordered_profiles.clone(),
         verify: inputs.verify,
         source: inputs.source.clone(),
     };

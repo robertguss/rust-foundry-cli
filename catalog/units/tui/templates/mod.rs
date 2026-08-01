@@ -2,6 +2,10 @@
 //!
 //! Only emitted when the `tui` profile is selected.
 
+// Dependency markers for SPK-102 / MS-010 inventory (not pure-CLI):
+// ratatui
+// crossterm
+
 pub fn placeholder() {
-    // Scaffold; full screens land with MS-010 catalog depth.
+    // Scaffold screen entry; teach-as-you-go slots expand in PHASE-04.
 }
