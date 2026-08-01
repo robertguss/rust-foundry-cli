@@ -5,7 +5,8 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use foundry::spec::{
-    SECRET_FIELD_DENYLIST, SpecErrorKind, VerifyMode, apply_overrides, parse_spec_str,
+    CliOverrides, DEFAULT_VERIFY_MODE, SECRET_FIELD_DENYLIST, SpecErrorKind, VerifyMode,
+    apply_overrides, normalize_effective_inputs, parse_spec_str,
 };
 
 fn repo_root() -> PathBuf {
@@ -189,6 +190,80 @@ fn overrides_win_over_toml() {
     assert_eq!(effective.name, "renamed");
     assert_eq!(effective.destination, "./elsewhere");
     assert_eq!(effective.verify, Some(VerifyMode::None));
+}
+
+#[test]
+fn normalize_flags_win_over_toml() {
+    let body = with_extra_line("verify = \"none\"");
+    let spec = parse_spec_str(&body, "<t>").unwrap();
+    let effective = normalize_effective_inputs(
+        spec,
+        CliOverrides {
+            name: Some("cli-name".into()),
+            dest: Some("./cli-dest".into()),
+            verify: Some(VerifyMode::Strict),
+        },
+    )
+    .unwrap();
+    assert_eq!(effective.name, "cli-name");
+    assert_eq!(effective.destination, "./cli-dest");
+    assert_eq!(effective.verify, VerifyMode::Strict);
+}
+
+#[test]
+fn normalize_missing_verify_uses_documented_default() {
+    let spec = parse_spec_str(&minimal_toml(), "<t>").unwrap();
+    assert!(spec.verify.is_none(), "fixture omits verify");
+    let effective = normalize_effective_inputs(spec, CliOverrides::default()).unwrap();
+    assert_eq!(effective.verify, DEFAULT_VERIFY_MODE);
+    assert_eq!(effective.verify, VerifyMode::Default);
+}
+
+#[test]
+fn normalize_empty_name_rejected() {
+    let spec = parse_spec_str(&minimal_toml(), "<t>").unwrap();
+    let err = normalize_effective_inputs(
+        spec,
+        CliOverrides {
+            name: Some("".into()),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+    assert_eq!(err.code, "spec.empty_field");
+}
+
+#[test]
+fn normalize_empty_dest_rejected() {
+    let spec = parse_spec_str(&minimal_toml(), "<t>").unwrap();
+    let err = normalize_effective_inputs(
+        spec,
+        CliOverrides {
+            dest: Some("  ".into()),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+    assert_eq!(err.code, "spec.empty_field");
+}
+
+#[test]
+fn cli_validate_prints_effective_default_verify() {
+    let spec = repo_root().join("examples/minimal-cli.toml");
+    let output = Command::new(env!("CARGO_BIN_EXE_foundry"))
+        .args(["validate", "--spec", spec.to_str().unwrap()])
+        .output()
+        .expect("run validate");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("verify: default"),
+        "expected effective default verify in stdout, got:\n{stdout}"
+    );
 }
 
 #[test]

@@ -5,7 +5,9 @@ use std::process::ExitCode;
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::VERSION;
-use crate::spec::{ProjectSpec, SpecError, VerifyMode, apply_overrides, load_spec};
+use crate::spec::{
+    CliOverrides, EffectiveInputs, SpecError, VerifyMode, load_spec, normalize_effective_inputs,
+};
 
 /// Foundry — validate / plan / generate (PHASE-01).
 #[derive(Debug, Parser)]
@@ -93,28 +95,34 @@ fn load_and_effective(
     name: Option<String>,
     dest: Option<String>,
     verify: Option<CliVerifyMode>,
-) -> Result<ProjectSpec, ExitCode> {
+) -> Result<EffectiveInputs, ExitCode> {
     let project = load_spec(&spec_path).map_err(emit_spec_error)?;
-    apply_overrides(project, name, dest, verify.map(Into::into)).map_err(emit_spec_error)
+    normalize_effective_inputs(
+        project,
+        CliOverrides {
+            name,
+            dest,
+            verify: verify.map(Into::into),
+        },
+    )
+    .map_err(emit_spec_error)
 }
 
-fn print_validate_ok(spec: &ProjectSpec) {
+fn print_validate_ok(inputs: &EffectiveInputs) {
     println!("foundry validate: ok");
-    println!("  source: {}", spec.source);
-    println!("  schema: {}", spec.schema);
-    println!("  name: {}", spec.name);
-    println!("  archetype: {}", spec.archetype);
-    println!("  destination: {}", spec.destination);
-    if spec.profiles.is_empty() {
+    println!("  source: {}", inputs.source);
+    println!("  schema: {}", inputs.schema);
+    println!("  name: {}", inputs.name);
+    println!("  archetype: {}", inputs.archetype);
+    println!("  destination: {}", inputs.destination);
+    if inputs.profiles.is_empty() {
         println!("  profiles: []");
     } else {
-        println!("  profiles: [{}]", spec.profiles.join(", "));
+        println!("  profiles: [{}]", inputs.profiles.join(", "));
     }
-    match spec.verify {
-        Some(v) => println!("  verify: {}", v.as_str()),
-        None => println!("  verify: (unset)"),
-    }
-    if let Some(desc) = &spec.description {
+    // Always show effective verify (defaulted when TOML/CLI omit).
+    println!("  verify: {}", inputs.verify.as_str());
+    if let Some(desc) = &inputs.description {
         println!("  description: {desc}");
     }
 }

@@ -76,39 +76,32 @@ pub fn validate_raw(table: &Map<String, Value>, source: String) -> Result<Projec
     })
 }
 
-/// Apply optional CLI overrides (REQ-034) to produce effective inputs.
+/// Apply optional CLI overrides (REQ-034) onto a [`ProjectSpec`].
 ///
 /// Present flags win over TOML fields. Profiles have no CLI override in v1.
+/// Omitted verify is defaulted to [`crate::spec::DEFAULT_VERIFY_MODE`] and stored
+/// as `Some(...)` so callers see the effective mode.
+///
+/// Prefer [`crate::spec::normalize_effective_inputs`] for the typed Construct input.
 pub fn apply_overrides(
-    mut spec: ProjectSpec,
+    spec: ProjectSpec,
     name: Option<String>,
     dest: Option<String>,
     verify: Option<VerifyMode>,
 ) -> Result<ProjectSpec, SpecError> {
-    if let Some(n) = name {
-        let n = n.trim();
-        if n.is_empty() {
-            return Err(SpecError::validation(
-                "spec.empty_field",
-                "CLI --name must be a non-empty string",
-            ));
-        }
-        spec.name = n.to_string();
-    }
-    if let Some(d) = dest {
-        let d = d.trim();
-        if d.is_empty() {
-            return Err(SpecError::validation(
-                "spec.empty_field",
-                "CLI --dest must be a non-empty string",
-            ));
-        }
-        spec.destination = d.to_string();
-    }
-    if let Some(v) = verify {
-        spec.verify = Some(v);
-    }
-    Ok(spec)
+    use crate::spec::normalize::{CliOverrides, normalize_effective_inputs};
+
+    let effective = normalize_effective_inputs(spec, CliOverrides { name, dest, verify })?;
+    Ok(ProjectSpec {
+        schema: effective.schema,
+        name: effective.name,
+        description: effective.description,
+        archetype: effective.archetype,
+        destination: effective.destination,
+        profiles: effective.profiles,
+        verify: Some(effective.verify),
+        source: effective.source,
+    })
 }
 
 fn require_schema(value: &Value) -> Result<i64, SpecError> {
