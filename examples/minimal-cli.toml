@@ -1,0 +1,9 @@
+# Minimal Project Spec cell for PHASE-01 (schema = 1).
+# Full field rules: docs/02-definitive-specification-revised.md §11.1
+
+schema = 1
+name = "example-cli"
+description = "Minimal cli cell for validate/plan goldens"
+archetype = "cli"
+destination = "./example-cli"
+profiles = []

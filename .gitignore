@@ -1,0 +1,17 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Beads / Dolt (if initialized later)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+.bv/

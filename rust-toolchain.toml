@@ -1,0 +1,6 @@
+# Foundry product toolchain (OQ-104 provisional).
+# Generated Projects stamp rust-version floor 1.85 (REQ-069); product dogfoods stable.
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
