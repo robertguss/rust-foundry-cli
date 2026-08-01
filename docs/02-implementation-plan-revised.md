@@ -6,7 +6,7 @@
 - **Version:** 0.2
 - **Plan date (baseline):** 2026-08-01
 - **Revision date:** 2026-08-01
-- **Delivery status:** Accepted — delivery authority (human-accepted stage `plan-revision`; subordinate to revised definitive specification for *what* to build)
+- **Delivery status:** Accepted — delivery authority (human-accepted stage `plan-revision`; subordinate to revised definitive specification for _what_ to build)
 - **Implementation authority:** [`docs/specifications/02-definitive-specification-revised.md`](../specifications/02-definitive-specification-revised.md) (Accepted — implementation authority; `bf8b0f4d`)
 - **Baseline plan:** [`docs/plans/01-implementation-plan.md`](01-implementation-plan.md) (v0.1; Proposed — pending plan review)
 - **Plan review:** [`docs/reviews/02-implementation-plan-adversarial-review.md`](../reviews/02-implementation-plan-adversarial-review.md) (FND-200..203; gate Conditional; `23fe4223`)
@@ -15,7 +15,7 @@
 - **Identifier ranges:** PHASE-01..05 · MS-001..MS-021 · SPK-100..104 (scheduled)
 
 > This plan defines **how to build** the Foundry product. It is subordinate to
-> the revised definitive specification for *what* to build. It dispositions every
+> the revised definitive specification for _what_ to build. It dispositions every
 > plan-review finding. **Status: Accepted — delivery authority** (stage
 > `plan-revision` human-accepted). It is **not** a granular coding backlog.
 > Product code lives in a **separate Foundry product repository** (L12 / REQ-010).
@@ -42,6 +42,20 @@ backlog.
 4. **Pure-CLI Core dogfood gate** (MS-021) sits after MS-008 and before profile/TUI
    expansion (MS-009/MS-010) (FND-203).
 
+**Architecture and methodology enhancements added in this working revision:**
+
+5. Snapshot golden testing (`insta`), property-based fuzz fixtures, plan-package
+   purity scans, and stable error-code contracts are codified in PHASE-01 testing.
+6. `render` emits a pure path→bytes map; `fsx` places atomically; parallelism is
+   permitted but not required.
+7. Verify runner uses a sanitized environment subset and timeout.
+8. Template-SoT dry-run digest check is introduced at MS-008 and automated at
+   MS-015.
+9. `foundry sample-spec` is proposed as a v1 convenience command (requires DEC
+   or spec amendment before it becomes binding).
+10. MS-001 self-dogfood quality gates and profile `requires` dependency edges are
+    explicit.
+
 **Status judgment:** High finding FND-200 is **Accepted** and integrated. Medium
 findings FND-201..203 are **Accepted** and integrated. No Critical findings
 existed. No new major product machinery. Eligible for **delivery authority** after
@@ -49,20 +63,20 @@ human validation and stage acceptance.
 
 ## 0B. Finding Disposition Ledger
 
-| FND | Sev | Disposition | Integration summary |
-| --- | --- | ----------- | ------------------- |
-| FND-200 | High | **Accepted** | Single PHASE-01 DAG: MS-003 → MS-004 → MS-005 → MS-006. MS-005 Prerequisites = MS-004. MS-003 Blocks = MS-004 only. §6 critical path redrawn; PHASE-01 rule: no plan JSON field names stable until MS-004. |
+| FND     | Sev    | Disposition  | Integration summary                                                                                                                                                                                                                                                     |
+| ------- | ------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FND-200 | High   | **Accepted** | Single PHASE-01 DAG: MS-003 → MS-004 → MS-005 → MS-006. MS-005 Prerequisites = MS-004. MS-003 Blocks = MS-004 only. §6 critical path redrawn; PHASE-01 rule: no plan JSON field names stable until MS-004.                                                              |
 | FND-201 | Medium | **Accepted** | PHASE-04 may draft after PHASE-02 emit paths; **PHASE-04 exit** requires REQ-088 string-match tests green against MS-012 justfile/cargo fallbacks + MS-013 GHA fixtures. MS-018 Prerequisites include MS-012 + MS-013. Parallelism note + §10 integration row hardened. |
-| FND-202 | Medium | **Accepted** | PHASE-05 Exit + MS-019 Acceptance evidence expanded to REQ-150/151 scenario checklist. Unit SPK-101/102 do not substitute for E2E acceptance jobs. §12 PHASE-05 row updated. |
-| FND-203 | Medium | **Accepted** | New **MS-021** pure-CLI catalog generate dogfood gate after MS-008; MS-009/MS-010 Prerequisites require MS-021. §15 dogfooding aligned. Full default verify still PHASE-03. |
+| FND-202 | Medium | **Accepted** | PHASE-05 Exit + MS-019 Acceptance evidence expanded to REQ-150/151 scenario checklist. Unit SPK-101/102 do not substitute for E2E acceptance jobs. §12 PHASE-05 row updated.                                                                                            |
+| FND-203 | Medium | **Accepted** | New **MS-021** pure-CLI catalog generate dogfood gate after MS-008; MS-009/MS-010 Prerequisites require MS-021. §15 dogfooding aligned. Full default verify still PHASE-03.                                                                                             |
 
 ## 0C. Integrated Correction Ledger
 
-| ID | Where integrated |
-| -- | ---------------- |
-| FND-200 | §6 dependency graph; PHASE-01 rule + exit; MS-003/004/005/006 Prerequisites/Blocks |
-| FND-201 | §6–§7 parallelism; PHASE-04 Depends/Entry/Exit; MS-016 draft note; MS-018 Prerequisites; §10 integration table |
-| FND-202 | PHASE-05 Exit; MS-019 Acceptance evidence; §12 testing strategy |
+| ID      | Where integrated                                                                                                 |
+| ------- | ---------------------------------------------------------------------------------------------------------------- |
+| FND-200 | §6 dependency graph; PHASE-01 rule + exit; MS-003/004/005/006 Prerequisites/Blocks                               |
+| FND-201 | §6–§7 parallelism; PHASE-04 Depends/Entry/Exit; MS-016 draft note; MS-018 Prerequisites; §10 integration table   |
+| FND-202 | PHASE-05 Exit; MS-019 Acceptance evidence; §12 testing strategy                                                  |
 | FND-203 | §6 milestone path; PHASE-02 Entry/Dogfooding/milestones; MS-008 Blocks; MS-021; MS-009/MS-010 Prerequisites; §15 |
 
 ## 0D. Preserved Strengths
@@ -80,16 +94,16 @@ human validation and stage acceptance.
 
 ## 1. Artifact Metadata
 
-| Field | Value |
-| ----- | ----- |
-| Program | rust-foundry |
-| Stage | `plan-revision` |
-| Plan path | `docs/plans/02-implementation-plan-revised.md` |
-| Spec authority | `docs/specifications/02-definitive-specification-revised.md` v0.2 |
-| Blueprint | `docs/00-program-blueprint.md` (Accepted) |
-| Charter | `docs/01-research-charter.md` (Accepted) |
+| Field                 | Value                                                                           |
+| --------------------- | ------------------------------------------------------------------------------- |
+| Program               | rust-foundry                                                                    |
+| Stage                 | `plan-revision`                                                                 |
+| Plan path             | `docs/plans/02-implementation-plan-revised.md`                                  |
+| Spec authority        | `docs/specifications/02-definitive-specification-revised.md` v0.2               |
+| Blueprint             | `docs/00-program-blueprint.md` (Accepted)                                       |
+| Charter               | `docs/01-research-charter.md` (Accepted)                                        |
 | Product code location | **Separate Foundry product repository** (not this research repo; L12 / REQ-010) |
-| Research repo role | Specs, plans, methodology; optional bounded spikes only |
+| Research repo role    | Specs, plans, methodology; optional bounded spikes only                         |
 
 ---
 
@@ -219,13 +233,13 @@ generate correctness from PHASE-02/03, but ship readiness requires PHASE-04+05.
 
 ## 7. Phase Overview
 
-| Phase | Name | Depends on | User-visible outcome |
-| ----- | ---- | ---------- | -------------------- |
-| PHASE-01 | Foundry CLI, Construct, write safety | None (product repo bootstrap) | Non-interactive `validate` / `plan` / `generate` with fail-closed stage→place on a minimal stub catalog or fixture tree |
-| PHASE-02 | Embedded catalog and emit matrix | PHASE-01 | Closed catalog units; pure CLI Core emit **dogfooded**; TUI/hooks/secrets profiles; permutation-stable plans |
-| PHASE-03 | Verify, CI, distribution, GH template | PHASE-02 | Default/strict/none verify; Core GHA workflows; optional cargo-dist profile; catalog-SoT template regen |
-| PHASE-04 | AI-native surfaces and product skills | PHASE-02 (parallel draft with PHASE-03; hard exit join) | Portable AGENTS/skills on Generated Projects; Foundry product skills; REQ-088-consistent DoD; no Claude/MCP defaults |
-| PHASE-05 | Acceptance and freeze | PHASE-01..04 complete for v1 scope | Automated REQ-150/151 scenario checklist green; release/digest gates documented |
+| Phase    | Name                                  | Depends on                                              | User-visible outcome                                                                                                    |
+| -------- | ------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| PHASE-01 | Foundry CLI, Construct, write safety  | None (product repo bootstrap)                           | Non-interactive `validate` / `plan` / `generate` with fail-closed stage→place on a minimal stub catalog or fixture tree |
+| PHASE-02 | Embedded catalog and emit matrix      | PHASE-01                                                | Closed catalog units; pure CLI Core emit **dogfooded**; TUI/hooks/secrets profiles; permutation-stable plans            |
+| PHASE-03 | Verify, CI, distribution, GH template | PHASE-02                                                | Default/strict/none verify; Core GHA workflows; optional cargo-dist profile; catalog-SoT template regen                 |
+| PHASE-04 | AI-native surfaces and product skills | PHASE-02 (parallel draft with PHASE-03; hard exit join) | Portable AGENTS/skills on Generated Projects; Foundry product skills; REQ-088-consistent DoD; no Claude/MCP defaults    |
+| PHASE-05 | Acceptance and freeze                 | PHASE-01..04 complete for v1 scope                      | Automated REQ-150/151 scenario checklist green; release/digest gates documented                                         |
 
 **Parallelism note:** PHASE-04 template content may **draft** once PHASE-02 pure-CLI
 and TUI emit paths exist (after MS-011); it must not block PHASE-03 verify/CI work.
@@ -307,15 +321,18 @@ None (greenfield). Spec schema = 1 only.
 
 ### Evidence Spikes
 
-| SPK | When | Exit evidence |
-| --- | ---- | ------------- |
-| SPK-100 | Before MS-005 treats plan JSON as stable; before PHASE-01 exit | Golden plan fixtures for minimal CLI (and slot for TUI later); element set matches REQ-041; OQ-200 residual closed or documented |
-| SPK-101 | Before PHASE-01 exit (after MS-005 lifecycle exists) | Table-driven emptiness/place/lifecycle cases green (missing, empty, non-empty incl. `.git`, file-at-path, symlink, success clean, fail retain + path) |
+| SPK     | When                                                           | Exit evidence                                                                                                                                                                                                                                                                                        |
+| ------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPK-100 | Before MS-005 treats plan JSON as stable; before PHASE-01 exit | Snapshot (`insta`) golden plan fixtures for minimal CLI (and slot for TUI later); element set matches REQ-041; JSON redaction for catalog digest; OQ-200 residual closed or documented                                                                                                               |
+| SPK-101 | Before PHASE-01 exit (after MS-005 lifecycle exists)           | Table-driven emptiness/place/lifecycle cases green using isolated `tempfile` sandboxes; plus property-based fixtures for path traversal, denylist case/unicode variants, and profile permutations (missing, empty, non-empty incl. `.git`, file-at-path, symlink, success clean, fail retain + path) |
 
 ### Testing and Verification
 
 - Unit/integration: parser denylist, override equality, plan purity, path jail.
-- FS sandbox: validate/plan no dest writes; generate place matrix (SPK-101).
+- FS sandbox: validate/plan no dest writes; generate place matrix (SPK-101) using isolated `tempfile` sandboxes.
+- Snapshot golden fixtures (`insta`) for plan JSON/text output; drift fails CI; `cargo insta review` is the accepted update path.
+- Error-code matrix: each failure mode produces a stable code and nonzero exit code; JSON error shape is part of SPK-100 fixtures.
+- Purity scan: automated test that `src/plan/**/*.rs` contains no imports of `crate::fsx`, `crate::generate`, `crate::cli`, `foundry::fsx`, `foundry::generate`, or `foundry::cli`.
 - CLI help and exit codes.
 
 ### Security and Reliability
@@ -343,11 +360,13 @@ Observable evidence:
 
 1. Product crate builds on Linux CI; no Windows jobs.
 2. `validate`, `plan`, `generate` exist; non-interactive; documented exit codes.
-3. Same effective inputs → equal planned file sets (REQ-040/034).
+3. Same effective inputs → equal planned file sets (REQ-040/034); cross-command `plan_sha256` equality asserted for representative fixtures.
 4. SPK-101 matrix green; SPK-100 golden plan for minimal path exists (**MS-004 before MS-005 shapes**).
 5. Path jail fixtures hard-fail escapes.
-6. Destination never partially placed on failure; stage path printed on fail.
-7. Module map inspectable (REQ-130 Should satisfied or residual noted).
+6. Plan-package purity scan green: `src/plan/` imports no `fsx`, `generate`, or `cli` modules.
+7. Stable error codes documented for denylist, schema, archetype, path-jail, non-empty destination, file-at-path, symlink, and place failure; JSON error shape included in SPK-100 fixtures.
+8. Destination never partially placed on failure; stage path printed on fail.
+9. Module map inspectable (REQ-130 Should satisfied or residual noted).
 
 ---
 
@@ -380,9 +399,15 @@ Observable evidence:
   may be stub until PHASE-03 for distribution) (REQ-062).
 - Canonical profile fold order: `tui` → `hooks` → `secrets` → `distribution`;
   input order non-significant (REQ-063).
+- Catalog units declare `requires` edges; `resolve` topologically sorts or errors
+  on unsupported combinations; canonical order is the topological default.
 - Core always emits; single-crate layout; CLI primary (REQ-004, REQ-009, REQ-064).
 - **MS-021 gate:** offline pure-CLI catalog generate + golden match + owner/agent
   `cargo test` smoke **before** MS-009/MS-010.
+- `foundry sample-spec` command emits a canonical, commented Project Spec TOML
+  (no secret placeholders; optional `--profile tui` to include profile examples).
+  _Authority note: this is a new v1 convenience surface; finalize via DEC or spec
+  amendment before treating as binding REQ-024 extension._
 - TUI generate-time inclusion only under `tui` profile (REQ-065).
 - hooks / secrets profiles (Should) (REQ-066, REQ-067).
 - Core pins: toolchain file, edition 2024, rustfmt/clippy, cargo test Required,
@@ -415,8 +440,8 @@ Observable evidence:
 
 ### Evidence Spikes
 
-| SPK | When | Exit evidence |
-| --- | ---- | ------------- |
+| SPK     | When                 | Exit evidence                                                                                                                           |
+| ------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | SPK-102 | Before PHASE-02 exit | Pure CLI trees have zero TUI deps/files/skills; TUI profile includes ratatui path set; permutation digests equal for reordered profiles |
 
 ### Testing and Verification
@@ -481,6 +506,7 @@ Observable evidence:
 
 - Verify tiers: `none` | `default` | `strict` on staged tree before place (REQ-120).
 - Verify tools limited to Core surface; no cargo-deny/Miri/shear as Required (REQ-121).
+- Verify runner uses a controlled environment subset and a wall-clock timeout so that host configuration cannot silently pass or fail generated projects.
 - Document honestly: catalog/render offline ≠ default verify offline (REQ-060 vs REQ-120).
 - GHA Core CI: fmt + clippy `-D warnings` + test on Linux; macOS Recommended
   when needed; never Windows (REQ-087).
@@ -515,10 +541,10 @@ Observable evidence:
 
 ### Evidence Spikes
 
-| SPK | When | Exit evidence |
-| --- | ---- | ------------- |
+| SPK     | When                                                 | Exit evidence                                                                                   |
+| ------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | SPK-103 | Before default-verify-on-generate is mandatory in CI | Documented behavior for cold cache vs warm; network expectations; fallbacks when `just` missing |
-| SPK-104 | Before claiming hybrid template surface complete | Regen produces matching digest; drift fails CI |
+| SPK-104 | Before claiming hybrid template surface complete     | Regen produces matching digest; drift fails CI                                                  |
 
 ### Testing and Verification
 
@@ -699,8 +725,8 @@ None.
 
 ### Evidence Spikes
 
-| SPK | When | Exit evidence |
-| --- | ---- | ------------- |
+| SPK                         | When                        | Exit evidence                                                            |
+| --------------------------- | --------------------------- | ------------------------------------------------------------------------ |
 | SPK-050/051 (or equivalent) | Before claiming agent-ready | Owner/agent trial notes; residual if matrix unavailable (REQ-152 Should) |
 
 ### Testing and Verification
@@ -731,7 +757,7 @@ None.
    - [ ] `generate` refuses **file-at-path** dest
    - [ ] `generate` refuses **symlink** dest
    - [ ] Plan file digests match placed tree for matching effective inputs
-     (including override pairs)
+         (including override pairs)
    - [ ] Path-jail fixtures fail closed
    - [ ] Pure CLI: **no ratatui** / **no add-tui-screen**
    - [ ] Primary gate passes post-generate when network/cache available
@@ -756,7 +782,11 @@ None.
 - **Phase:** PHASE-01
 - **Outcome:** Rust crate skeleton, CI Linux-only, module map stubs, license/README.
 - **Prerequisites:** Spec authority accepted; product repo location chosen.
-- **Acceptance evidence:** `cargo test` (possibly empty) passes; no Windows workflow.
+- **Acceptance evidence:**
+  - `cargo fmt --check` passes.
+  - `cargo clippy --all-targets -- -D warnings` passes.
+  - `cargo test` passes (possibly empty test suite).
+  - Linux-only CI workflow present; no Windows workflow.
 - **Blocks:** MS-002
 
 ### MS-002 — Spec parse and validate command
@@ -771,8 +801,10 @@ None.
 
 - **Phase:** PHASE-01
 - **Outcome:** `plan` emits text/JSON plan elements; zero dest writes; overrides in Construct.
+- **Architecture gate:** `src/plan/` MUST NOT import `crate::fsx`, `crate::generate`, `crate::cli`, or any I/O boundary module; enforced by crate structure or source-scan test.
+- **Error contract:** Stable error codes for validation/override/plan failures; emitted in both text and JSON (`--format json`) outputs.
 - **Prerequisites:** MS-002
-- **Acceptance evidence:** Override equality tests; write-free sandbox (REQ-034/040..043).
+- **Acceptance evidence:** Override equality tests; write-free sandbox (REQ-034/040..043); error-code fixture matrix green; cross-command `plan_sha256` equality for representative fixtures.
 - **Blocks:** MS-004
 - **Note:** Does **not** block MS-005 directly; SPK-100 (MS-004) must freeze plan JSON first.
 
@@ -780,7 +812,8 @@ None.
 
 - **Phase:** PHASE-01
 - **Outcome:** Golden plan JSON for minimal CLI; element set frozen; key names documented.
-- **Prerequisites:** MS-003
+- **Method:** Snapshot tests in `tests/snapshots/plan/` (e.g., `insta`); `cargo test` fails on drift; `cargo insta review` is the accepted update path; JSON redaction for unstable catalog digests.
+- **Prerequisites:** MS-003; plan-package purity scan green.
 - **Acceptance evidence:** Golden fixtures committed; OQ-200 residual closed or listed.
 - **Blocks:** MS-005, later PHASE-02 goldens
 - **Rule:** After this milestone, plan JSON field names are stable for fixtures;
@@ -790,6 +823,8 @@ None.
 
 - **Phase:** PHASE-01
 - **Outcome:** `generate` stages, optional stub verify hook, exclusive place; lifecycle table.
+- **Architecture:** `render` produces a pure `BTreeMap<RelativePath, RenderedFile>` (or equivalent) so that placement, parallelism, and atomicity are handled in `fsx`; `fsx` writes the map into the stage root atomically/transactionally; parallel placement is permitted but not required in v1.
+- **Contract check:** `generate` computes its plan independently and asserts the digest matches the MS-003 contract for the same effective inputs; on mismatch, fail before any FS write.
 - **Prerequisites:** MS-004
 - **Acceptance evidence:** Success cleans stage; fail retains + path (REQ-050).
 - **Blocks:** MS-006
@@ -806,6 +841,8 @@ None.
 
 - **Phase:** PHASE-02
 - **Outcome:** Embedded catalog load; `catalog list|show`; `version` digest.
+- **Extension:** `foundry sample-spec` emits a valid schema-1 TOML for the current
+  catalog; acceptance includes schema validation of emitted sample.
 - **Prerequisites:** PHASE-01 exit
 - **Acceptance evidence:** Offline catalog ops; digest stable (REQ-025/060/062).
 - **Blocks:** MS-008
@@ -816,6 +853,7 @@ None.
 - **Outcome:** Core unit always emits single-crate CLI with toolchain/edition/gates files.
 - **Prerequisites:** MS-007
 - **Acceptance evidence:** Tree fixtures match Core matrix (REQ-009/064/080..086).
+  Lightweight template-SoT dry-run: generate a pure-CLI tree and compare digest/shape to the existing template snapshot; fail on drift.
 - **Blocks:** MS-021
 
 ### MS-021 — Pure-CLI Core catalog generate dogfood gate
@@ -835,14 +873,16 @@ None.
 
 - **Phase:** PHASE-02
 - **Outcome:** Canonical order; permutation-invariant digests; hooks/secrets emit.
+- **Dependency rule:** Catalog units declare `requires` edges; `resolve` topologically sorts selected profiles or errors on unsupported combinations; canonical order is the topological default.
 - **Prerequisites:** MS-021
-- **Acceptance evidence:** REQ-063 tests; profile fixtures (REQ-066/067).
+- **Acceptance evidence:** REQ-063 tests; profile fixtures (REQ-066/067); unsupported profile combinations hard-fail with clear errors.
 - **Blocks:** MS-010, MS-011
 
 ### MS-010 — TUI generate-time inclusion
 
 - **Phase:** PHASE-02
 - **Outcome:** `tui` profile adds TUI files/deps only when selected.
+- **Dependency rule:** `tui` has no required predecessors; it folds before `hooks`.
 - **Prerequisites:** MS-021, MS-009
 - **Acceptance evidence:** Side-by-side pure CLI vs TUI fixtures (REQ-004/065).
 - **Blocks:** MS-011
@@ -860,8 +900,10 @@ None.
 - **Phase:** PHASE-03
 - **Outcome:** none/default/strict verify; failure blocks place; **primary gate
   strings + cargo fallbacks frozen** for justfile/docs.
+- **Isolation:** Verify runner executes with a sanitized environment subset
+  (e.g., `PATH`, `HOME`, `RUSTUP_HOME`, `CARGO_HOME` retained; user `RUSTFLAGS`/`CARGO_TARGET_DIR` stripped or prefixed) and a per-test timeout so host state cannot silently pass/fail generated projects.
 - **Prerequisites:** MS-011; Core justfile/cargo fallbacks exist
-- **Acceptance evidence:** SPK-103 notes + tests (REQ-120/121); freeze fixture committed.
+- **Acceptance evidence:** SPK-103 notes + tests (REQ-120/121); freeze fixture committed; env-hygiene and timeout fixtures green.
 - **Blocks:** MS-013; MS-018 (with MS-013)
 
 ### MS-013 — Generated GHA Core CI (command-surface freeze: workflow)
@@ -887,6 +929,7 @@ None.
 - **Outcome:** Template snapshot regenerated from catalog; digest check.
 - **Prerequisites:** MS-008, MS-012 recommended
 - **Acceptance evidence:** SPK-104 green (REQ-122).
+- **Note:** Dry-run digest check introduced in MS-008; MS-015 makes it CI-automated.
 - **Blocks:** PHASE-03 exit
 
 ### MS-016 — Generated AI-native Core surface (draft-capable)
@@ -939,19 +982,20 @@ None.
 
 ## 10. Cross-Phase Integration
 
-| Integration | Phases | Contract |
-| ----------- | ------ | -------- |
-| Plan-as-contract | 01→all | Same Construct; overrides before Construct; goldens evolve only with intentional catalog changes; **JSON names stable only after MS-004** |
-| Write safety | 01→all | Stage/place/jail never relaxed by verify or profiles |
-| Catalog digest | 02→03→05 | `version`, template snapshot, release notes share digest definition |
-| Emit matrix | 02→04 | AI files are catalog units subject to same composition rules |
-| Verify vs offline | 02↔03 | Catalog offline tests stay separate from verify network tests |
-| TUI leakage | 02→04→05 | SPK-102 + acceptance REQ-151 continuous |
-| Pure-CLI dogfood | 02 | MS-021 before profile/TUI expansion |
-| **Command surface freeze → AI DoD / verify docs** | **03→04** | **MS-012/MS-013 freeze fixtures; PHASE-04 exit + MS-018 require REQ-088 match** |
-| Hybrid surface | 01 docs → 03 template → 05 ship | L1 facets all present at ship |
-| Dogfood gates | 01→05 | Foundry product uses same quality philosophy as Generated Core |
-| Acceptance E2E | 05 | REQ-150/151 checklist; unit spikes do not substitute |
+| Integration                                       | Phases                          | Contract                                                                                                                                  |
+| ------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan-as-contract                                  | 01→all                          | Same Construct; overrides before Construct; goldens evolve only with intentional catalog changes; **JSON names stable only after MS-004** |
+| Write safety                                      | 01→all                          | Stage/place/jail never relaxed by verify or profiles                                                                                      |
+| Catalog digest                                    | 02→03→05                        | `version`, template snapshot, release notes share digest definition                                                                       |
+| Emit matrix                                       | 02→04                           | AI files are catalog units subject to same composition rules                                                                              |
+| Verify vs offline                                 | 02↔03                           | Catalog offline tests stay separate from verify network tests                                                                             |
+| TUI leakage                                       | 02→04→05                        | SPK-102 + acceptance REQ-151 continuous                                                                                                   |
+| Pure-CLI dogfood                                  | 02                              | MS-021 before profile/TUI expansion                                                                                                       |
+| **Command surface freeze → AI DoD / verify docs** | **03→04**                       | **MS-012/MS-013 freeze fixtures; PHASE-04 exit + MS-018 require REQ-088 match**                                                           |
+| Template SoT dry-run                              | 02→03                           | MS-008 dry-run digest check; MS-015 CI automation                                                                                         |
+| Hybrid surface                                    | 01 docs → 03 template → 05 ship | L1 facets all present at ship                                                                                                             |
+| Dogfood gates                                     | 01→05                           | Foundry product uses same quality philosophy as Generated Core                                                                            |
+| Acceptance E2E                                    | 05                              | REQ-150/151 checklist; unit spikes do not substitute                                                                                      |
 
 Continuous integration rule: each phase adds fixtures; later phases must not
 disable earlier safety tests.
@@ -960,27 +1004,27 @@ disable earlier safety tests.
 
 ## 11. Data or Migration Sequencing
 
-| Topic | Plan |
-| ----- | ---- |
-| Project Spec schema | v1 only (`schema = 1`); unknown keys hard-fail; no dual-schema support |
-| Plan JSON keys | Freeze elements after MS-004 (SPK-100); additive changes need tests |
-| Catalog content | Append-only closed set; removals need DEC |
-| GH template | Always regenerated from catalog; never manual dual-edit |
-| Existing user projects | No migration / merge / update in v1 |
-| Research → product | Specs/plans remain in research repo; code only in product repo |
-| Command-surface strings | Freeze at MS-012/MS-013; AGENTS/DoD must match before PHASE-04 exit |
+| Topic                   | Plan                                                                   |
+| ----------------------- | ---------------------------------------------------------------------- |
+| Project Spec schema     | v1 only (`schema = 1`); unknown keys hard-fail; no dual-schema support |
+| Plan JSON keys          | Freeze elements after MS-004 (SPK-100); additive changes need tests    |
+| Catalog content         | Append-only closed set; removals need DEC                              |
+| GH template             | Always regenerated from catalog; never manual dual-edit                |
+| Existing user projects  | No migration / merge / update in v1                                    |
+| Research → product      | Specs/plans remain in research repo; code only in product repo         |
+| Command-surface strings | Freeze at MS-012/MS-013; AGENTS/DoD must match before PHASE-04 exit    |
 
 ---
 
 ## 12. Testing Strategy by Phase
 
-| Phase | Focus | Minimum evidence |
-| ----- | ----- | ---------------- |
-| PHASE-01 | Unit + FS sandbox + CLI | Override equality; write-free plan; SPK-100 **before** generate shapes; SPK-101; path jail |
-| PHASE-02 | Fixture trees + matrix | Core emit; **MS-021 dogfood**; profile permutations; SPK-102; offline catalog |
-| PHASE-03 | Process integration | Verify tiers; workflow fixtures; SPK-103/104; command-surface freeze |
-| PHASE-04 | Content + forbidden paths + join | AGENTS/skills inventories; Claude/MCP absence; **REQ-088 match** |
-| PHASE-05 | End-to-end acceptance | **REQ-150/151 scenario checklist CI**; optional REQ-152 |
+| Phase    | Focus                            | Minimum evidence                                                                                                                                                                 |
+| -------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PHASE-01 | Unit + FS sandbox + CLI          | Override equality; write-free plan; SPK-100 **before** generate shapes; SPK-101; path jail; snapshot goldens; plan purity scan; stable error codes; property-based fuzz fixtures |
+| PHASE-02 | Fixture trees + matrix           | Core emit; **MS-021 dogfood**; profile permutations; SPK-102; offline catalog                                                                                                    |
+| PHASE-03 | Process integration              | Verify tiers; workflow fixtures; SPK-103/104; command-surface freeze                                                                                                             |
+| PHASE-04 | Content + forbidden paths + join | AGENTS/skills inventories; Claude/MCP absence; **REQ-088 match**                                                                                                                 |
+| PHASE-05 | End-to-end acceptance            | **REQ-150/151 scenario checklist CI**; optional REQ-152                                                                                                                          |
 
 Shared rules: no Windows CI jobs; secrets never in fixtures as real material;
 tests must be non-interactive.
@@ -989,13 +1033,13 @@ tests must be non-interactive.
 
 ## 13. Security Activities by Phase
 
-| Phase | Activities |
-| ----- | ---------- |
-| PHASE-01 | Denylist (REQ-033); path jail (REQ-053); fail-closed place (REQ-050/051) |
-| PHASE-02 | Closed catalog (no remote code fetch); secrets profile hygiene; no secret templates |
+| Phase    | Activities                                                                              |
+| -------- | --------------------------------------------------------------------------------------- |
+| PHASE-01 | Denylist (REQ-033); path jail (REQ-053); fail-closed place (REQ-050/051)                |
+| PHASE-02 | Closed catalog (no remote code fetch); secrets profile hygiene; no secret templates     |
 | PHASE-03 | Verify surface limited; distribution without Windows installers; template SoT integrity |
-| PHASE-04 | AGENTS boundary rules; no MCP kitchen sink; no Claude-required surfaces |
-| PHASE-05 | Final security regression on jail/emptiness/forbidden paths |
+| PHASE-04 | AGENTS boundary rules; no MCP kitchen sink; no Claude-required surfaces                 |
+| PHASE-05 | Final security regression on jail/emptiness/forbidden paths                             |
 
 Threat model remains personal tool, fail-closed writes; no multi-tenant claims.
 
@@ -1003,16 +1047,16 @@ Threat model remains personal tool, fail-closed writes; no multi-tenant claims.
 
 ## 14. Operations and Release Readiness
 
-| Item | When | Notes |
-| ---- | ---- | ----- |
-| Product CI (Linux) | PHASE-01+ | Required |
-| macOS CI | When claiming mac bins / distribution | Recommended (REQ-087) |
-| cargo install path | PHASE-03+ | Primary distribution for Foundry |
-| GH release binaries | Evaluate with cargo-dist | Optional; pin carefully |
-| Catalog digest in release | PHASE-02+ | Must at ship (PHASE-05) |
-| Template snapshot regen | PHASE-03+ | Must on catalog change + release |
-| Version command | PHASE-02 | Reports digest |
-| Support OS statement | All phases | macOS + Linux only |
+| Item                      | When                                  | Notes                            |
+| ------------------------- | ------------------------------------- | -------------------------------- |
+| Product CI (Linux)        | PHASE-01+                             | Required                         |
+| macOS CI                  | When claiming mac bins / distribution | Recommended (REQ-087)            |
+| cargo install path        | PHASE-03+                             | Primary distribution for Foundry |
+| GH release binaries       | Evaluate with cargo-dist              | Optional; pin carefully          |
+| Catalog digest in release | PHASE-02+                             | Must at ship (PHASE-05)          |
+| Template snapshot regen   | PHASE-03+                             | Must on catalog change + release |
+| Version command           | PHASE-02                              | Reports digest                   |
+| Support OS statement      | All phases                            | macOS + Linux only               |
 
 Release is blocked if SPK-101/102 regressions exist, template digest drifts, or
 REQ-150/151 checklist incomplete.
@@ -1021,12 +1065,12 @@ REQ-150/151 checklist incomplete.
 
 ## 15. Dogfooding
 
-| Layer | Practice |
-| ----- | -------- |
-| Foundry product | Implemented in Rust (L2); uses fmt/clippy/test; product skills for agent implementers |
-| Generated Projects | Owner generates real CLIs; runs quality-gates; adds subcommands via skills |
-| Hybrid template | Occasional generate-from-template path to detect SoT drift |
-| Research program | Does **not** dogfood by implementing product crates here (L12) |
+| Layer              | Practice                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Foundry product    | Implemented in Rust (L2); uses fmt/clippy/test; product skills for agent implementers |
+| Generated Projects | Owner generates real CLIs; runs quality-gates; adds subcommands via skills            |
+| Hybrid template    | Occasional generate-from-template path to detect SoT drift                            |
+| Research program   | Does **not** dogfood by implementing product crates here (L12)                        |
 
 **Dogfood before broad profile expansion (normative):** MS-021 pure-CLI catalog
 generate + `cargo test` smoke **before** MS-009/MS-010. Full default verify for
@@ -1037,35 +1081,35 @@ PHASE-03 guidance (not a PHASE-02 exit substitute for MS-021).
 
 ## 16. Risk Register
 
-| ID | Risk | Plan mitigation | Phase focus | Residual |
-| -- | ---- | --------------- | ----------- | -------- |
-| RSK-100 | Destructive overwrite | REQ-050/051; SPK-101 before catalog breadth | 01 | Override DEC later only |
-| RSK-101 | Plan/apply divergence | Pure Construct; golden plans; MS-004 before MS-005 | 01–02 | Implementer error |
-| RSK-109 | Path escape | REQ-053 fixtures continuous | 01–05 | Impl bugs |
-| RSK-112 | Stage leftovers | Success clean / fail path print | 01 | Disk if abandoned |
-| RSK-110 | Secrets in spec | Denylist + AGENTS | 01, 04 | Non-denylist keys |
-| RSK-103 | TUI leakage | SPK-102 + acceptance REQ-151; MS-021 before TUI matrix | 02, 05 | Template bugs |
-| RSK-102 | Catalog/template drift | REQ-122; SPK-104 | 03, 05 | CI failure mode |
-| RSK-107 | Verify host gaps | cargo fallbacks; SPK-103 | 03 | just missing |
-| RSK-006 | cargo-dist churn | Optional profile only | 03 | Pin carefully |
-| RSK-007 | macOS CI skip | Linux Required policy | 03 | Coverage gap |
-| RSK-051 | MCP creep | REQ-007 tests | 04 | Social pressure |
-| RSK-052 | DoD drift from CI | REQ-088 hard PHASE-04 exit; MS-012/013 freeze | 03–04 | Copy edits after freeze |
-| RSK-053 | Agent product overfit | REQ-006/106 | 04 | Adapter temptation |
-| RSK-111 | Product skills in Generated | Separation tests | 04 | — |
-| RSK-104 | Profile explosion | Closed set + DEC | 02 | Demand pressure |
-| RSK-105 | Engine complexity | Single crate Default | 01–02 | Complexity |
+| ID      | Risk                        | Plan mitigation                                        | Phase focus | Residual                |
+| ------- | --------------------------- | ------------------------------------------------------ | ----------- | ----------------------- |
+| RSK-100 | Destructive overwrite       | REQ-050/051; SPK-101 before catalog breadth            | 01          | Override DEC later only |
+| RSK-101 | Plan/apply divergence       | Pure Construct; golden plans; MS-004 before MS-005     | 01–02       | Implementer error       |
+| RSK-109 | Path escape                 | REQ-053 fixtures continuous                            | 01–05       | Impl bugs               |
+| RSK-112 | Stage leftovers             | Success clean / fail path print                        | 01          | Disk if abandoned       |
+| RSK-110 | Secrets in spec             | Denylist + AGENTS                                      | 01, 04      | Non-denylist keys       |
+| RSK-103 | TUI leakage                 | SPK-102 + acceptance REQ-151; MS-021 before TUI matrix | 02, 05      | Template bugs           |
+| RSK-102 | Catalog/template drift      | REQ-122; SPK-104                                       | 03, 05      | CI failure mode         |
+| RSK-107 | Verify host gaps            | cargo fallbacks; SPK-103                               | 03          | just missing            |
+| RSK-006 | cargo-dist churn            | Optional profile only                                  | 03          | Pin carefully           |
+| RSK-007 | macOS CI skip               | Linux Required policy                                  | 03          | Coverage gap            |
+| RSK-051 | MCP creep                   | REQ-007 tests                                          | 04          | Social pressure         |
+| RSK-052 | DoD drift from CI           | REQ-088 hard PHASE-04 exit; MS-012/013 freeze          | 03–04       | Copy edits after freeze |
+| RSK-053 | Agent product overfit       | REQ-006/106                                            | 04          | Adapter temptation      |
+| RSK-111 | Product skills in Generated | Separation tests                                       | 04          | —                       |
+| RSK-104 | Profile explosion           | Closed set + DEC                                       | 02          | Demand pressure         |
+| RSK-105 | Engine complexity           | Single crate Default                                   | 01–02       | Complexity              |
 
 Plan-local delivery risks:
 
-| ID | Risk | Mitigation |
-| -- | ---- | ---------- |
-| RSK-PLAN-001 | Implementing in research repo | Explicit product-repo assumption; REQ-010 |
-| RSK-PLAN-002 | Plan treated as REQ override | Authority section; spec wins |
+| ID           | Risk                                    | Mitigation                                                    |
+| ------------ | --------------------------------------- | ------------------------------------------------------------- |
+| RSK-PLAN-001 | Implementing in research repo           | Explicit product-repo assumption; REQ-010                     |
+| RSK-PLAN-002 | Plan treated as REQ override            | Authority section; spec wins                                  |
 | RSK-PLAN-003 | Skipping spikes under schedule pressure | Exit criteria require SPK evidence or owner-accepted residual |
-| RSK-PLAN-004 | Agent-ambiguous milestone graphs | Single DAG; hard Prerequisites/Blocks (FND-200 disposition) |
-| RSK-PLAN-005 | Soft parallel joins | Hard PHASE-04 exit REQ-088 (FND-201 disposition) |
-| RSK-PLAN-006 | Performative “CI green” ship | REQ-150/151 checklist (FND-202 disposition) |
+| RSK-PLAN-004 | Agent-ambiguous milestone graphs        | Single DAG; hard Prerequisites/Blocks (FND-200 disposition)   |
+| RSK-PLAN-005 | Soft parallel joins                     | Hard PHASE-04 exit REQ-088 (FND-201 disposition)              |
+| RSK-PLAN-006 | Performative “CI green” ship            | REQ-150/151 checklist (FND-202 disposition)                   |
 
 ---
 
@@ -1073,46 +1117,46 @@ Plan-local delivery risks:
 
 Carry from revised spec (non-blocking unless noted):
 
-| ID | Question | Plan handling |
-| -- | -------- | ------------- |
-| OQ-200 | Exact plan JSON field names | SPK-100 in MS-004 (before MS-005) |
-| OQ-201 | Embed crate choice | Decide in MS-007; document |
-| OQ-202 | Foundry skill body prose | MS-018 |
-| OQ-104 | Foundry product rustc pin | Bootstrap MS-001; dogfood Generated policy |
-| OQ-106 | GH template regen cadence | On catalog change + release (MS-015) |
-| OQ-107 | Saved plan file apply | Deferred post-v1 |
-| OQ-109 | Cursor rules | Not default Core |
-| OQ-110 | Secrets skill | Deferred; profile scaffolding first |
+| ID     | Question                    | Plan handling                              |
+| ------ | --------------------------- | ------------------------------------------ |
+| OQ-200 | Exact plan JSON field names | SPK-100 in MS-004 (before MS-005)          |
+| OQ-201 | Embed crate choice          | Decide in MS-007; document                 |
+| OQ-202 | Foundry skill body prose    | MS-018                                     |
+| OQ-104 | Foundry product rustc pin   | Bootstrap MS-001; dogfood Generated policy |
+| OQ-106 | GH template regen cadence   | On catalog change + release (MS-015)       |
+| OQ-107 | Saved plan file apply       | Deferred post-v1                           |
+| OQ-109 | Cursor rules                | Not default Core                           |
+| OQ-110 | Secrets skill               | Deferred; profile scaffolding first        |
 
 Closed provisional (do not reopen without evidence): OQ-100..103, OQ-105, OQ-003, OQ-051.
 
 **Plan-local OQs:**
 
-| ID | Question | Blocking? | Disposition |
-| -- | -------- | --------- | ----------- |
-| OQ-PLAN-001 | Product repository name/host | No | Owner chooses at PHASE-01 entry |
-| OQ-PLAN-002 | Whether distribution profile is in v1 ship set | No | Should; residual allowed at MS-014 |
-| OQ-PLAN-003 | Depth of REQ-152 agent matrix | No | Recommended; document residual |
+| ID          | Question                                       | Blocking? | Disposition                        |
+| ----------- | ---------------------------------------------- | --------- | ---------------------------------- |
+| OQ-PLAN-001 | Product repository name/host                   | No        | Owner chooses at PHASE-01 entry    |
+| OQ-PLAN-002 | Whether distribution profile is in v1 ship set | No        | Should; residual allowed at MS-014 |
+| OQ-PLAN-003 | Depth of REQ-152 agent matrix                  | No        | Recommended; document residual     |
 
 ---
 
 ## 18. Rollback and Reconsideration Triggers
 
-| Trigger | Action |
-| ------- | ------ |
+| Trigger                                                             | Action                                                   |
+| ------------------------------------------------------------------- | -------------------------------------------------------- |
 | Write safety defect (partial place, non-empty clobber, jail escape) | Halt ship; fix in PHASE-01 semantics before new features |
-| Pure CLI TUI leakage | Halt profile expansion; return to SPK-102 |
-| MS-021 pure-CLI dogfood fails | Do not start MS-009/MS-010; fix Core |
-| REQ-088 mismatch at PHASE-04 exit | Fix AI content or re-freeze surface; do not ship |
-| Proposal to default merge-into-non-empty | Reject unless Blueprint amendment + DEC |
-| Windows support request | Reject (L3) |
-| Remote catalog / marketplace | Reject without Blueprint amendment |
-| MCP default on / Claude Core | Reject (L7) |
-| Construct not shared across validate/plan/generate | Stop catalog work; restore INV-3 |
-| Cross-device place needs copy+swap | Requires DEC; default remains fail-closed |
-| New profile id | Requires DEC; closed set |
-| Plan conflicts with revised REQ | Spec wins; revise plan, do not hot-weaken REQ |
-| Major new machinery in plan | Risk-trigger possible extra plan-review |
+| Pure CLI TUI leakage                                                | Halt profile expansion; return to SPK-102                |
+| MS-021 pure-CLI dogfood fails                                       | Do not start MS-009/MS-010; fix Core                     |
+| REQ-088 mismatch at PHASE-04 exit                                   | Fix AI content or re-freeze surface; do not ship         |
+| Proposal to default merge-into-non-empty                            | Reject unless Blueprint amendment + DEC                  |
+| Windows support request                                             | Reject (L3)                                              |
+| Remote catalog / marketplace                                        | Reject without Blueprint amendment                       |
+| MCP default on / Claude Core                                        | Reject (L7)                                              |
+| Construct not shared across validate/plan/generate                  | Stop catalog work; restore INV-3                         |
+| Cross-device place needs copy+swap                                  | Requires DEC; default remains fail-closed                |
+| New profile id                                                      | Requires DEC; closed set                                 |
+| Plan conflicts with revised REQ                                     | Spec wins; revise plan, do not hot-weaken REQ            |
+| Major new machinery in plan                                         | Risk-trigger possible extra plan-review                  |
 
 ---
 
@@ -1120,76 +1164,76 @@ Closed provisional (do not reopen without evidence): OQ-100..103, OQ-105, OQ-003
 
 Every REQ from revised specification §23:
 
-| REQ | Phase | Notes |
-| --- | ----- | ----- |
+| REQ     | Phase    | Notes                                                     |
+| ------- | -------- | --------------------------------------------------------- |
 | REQ-001 | PHASE-01 | Hybrid shape in product docs + facets through PHASE-03/05 |
-| REQ-002 | PHASE-01 | Rust product language |
-| REQ-003 | PHASE-01 | OS policy continuous in CI |
-| REQ-004 | PHASE-02 | CLI primary; verified SPK-102/REQ-151; after MS-021 |
-| REQ-005 | PHASE-02 | Closed sets; skills freeze PHASE-04 |
-| REQ-006 | PHASE-04 | No Claude target |
-| REQ-007 | PHASE-04 | MCP default none |
-| REQ-008 | PHASE-04 | Agents primary |
-| REQ-009 | PHASE-02 | Single-crate generate |
-| REQ-010 | N/A | Governance: product code not in research repo |
-| REQ-020 | PHASE-01 | Lifecycle commands (catalog complete PHASE-02) |
-| REQ-021 | PHASE-01 | Non-interactive |
-| REQ-022 | PHASE-01 | validate/plan write-free |
-| REQ-023 | PHASE-01 | Exit codes |
-| REQ-024 | PHASE-01 | clap derive Foundry CLI |
-| REQ-025 | PHASE-02 | version + catalog digest |
-| REQ-030 | PHASE-01 | TOML schema 1 |
-| REQ-031 | PHASE-01 | Explicit `--spec` |
-| REQ-032 | PHASE-01 | Archetype `cli` only |
-| REQ-033 | PHASE-01 | Secret denylist |
-| REQ-034 | PHASE-01 | CLI overrides |
-| REQ-040 | PHASE-01 | Plan-as-contract |
-| REQ-041 | PHASE-01 | Plan elements; SPK-100 at MS-004 |
-| REQ-042 | PHASE-01 | Plan formats |
-| REQ-043 | PHASE-01 | Plan zero dest writes |
-| REQ-050 | PHASE-01 | Stage lifecycle |
-| REQ-051 | PHASE-01 | Emptiness/place; SPK-101 |
-| REQ-052 | PHASE-01 | No merge/update v1 |
-| REQ-053 | PHASE-01 | Path jail |
-| REQ-060 | PHASE-02 | Closed embedded catalog offline |
-| REQ-061 | PHASE-02 | Custom planner-led engine |
-| REQ-062 | PHASE-02 | Catalog unit set |
-| REQ-063 | PHASE-02 | Emit composition order |
-| REQ-064 | PHASE-02 | Core always emits; MS-021 dogfood |
-| REQ-065 | PHASE-02 | TUI generate-time inclusion after MS-021 |
-| REQ-066 | PHASE-02 | hooks profile |
-| REQ-067 | PHASE-02 | secrets profile |
-| REQ-068 | PHASE-03 | distribution profile |
-| REQ-069 | PHASE-02 | rust-version floor |
-| REQ-070 | PHASE-02 | tracing default full CLI |
-| REQ-080 | PHASE-02 | Toolchain pin file |
-| REQ-081 | PHASE-02 | Edition 2024 |
-| REQ-082 | PHASE-02 | rustfmt/clippy |
-| REQ-083 | PHASE-02 | cargo test Required |
-| REQ-084 | PHASE-02 | anyhow/thiserror policy |
-| REQ-085 | PHASE-02 | clap derive Generated CLI |
-| REQ-086 | PHASE-02 | just Default |
-| REQ-087 | PHASE-03 | GHA Core CI; MS-013 freeze |
-| REQ-088 | PHASE-04 | Command surface docs; hard exit join |
-| REQ-089 | PHASE-02 | Licensing posture |
-| REQ-100 | PHASE-04 | AGENTS + skills layout |
-| REQ-101 | PHASE-04 | AGENTS content contract |
-| REQ-102 | PHASE-04 | Generated Core skills |
-| REQ-103 | PHASE-04 | TUI skill delta |
-| REQ-104 | PHASE-04 | Foundry product skills |
-| REQ-105 | PHASE-04 | DoD embeds command surface |
-| REQ-106 | PHASE-04 | Portability baseline |
-| REQ-107 | PHASE-04 | Boundary rules |
-| REQ-108 | PHASE-04 | rust-analyzer not DoD |
-| REQ-120 | PHASE-03 | Default verify tier; MS-012 freeze |
-| REQ-121 | PHASE-03 | Verify tools limited |
-| REQ-122 | PHASE-03 | GH template catalog SoT |
-| REQ-123 | PHASE-04 | Teach-as-you-go |
-| REQ-130 | PHASE-01 | Module boundaries Should |
-| REQ-150 | PHASE-05 | Acceptance pure CLI — checklist on exit/MS-019 |
-| REQ-151 | PHASE-05 | Acceptance TUI matrix — checklist on exit/MS-019 |
-| REQ-152 | PHASE-05 | Acceptance agent operability Should |
-| REQ-160 | N/A | Prior-art transfer posture (docs/spec integrity) |
+| REQ-002 | PHASE-01 | Rust product language                                     |
+| REQ-003 | PHASE-01 | OS policy continuous in CI                                |
+| REQ-004 | PHASE-02 | CLI primary; verified SPK-102/REQ-151; after MS-021       |
+| REQ-005 | PHASE-02 | Closed sets; skills freeze PHASE-04                       |
+| REQ-006 | PHASE-04 | No Claude target                                          |
+| REQ-007 | PHASE-04 | MCP default none                                          |
+| REQ-008 | PHASE-04 | Agents primary                                            |
+| REQ-009 | PHASE-02 | Single-crate generate                                     |
+| REQ-010 | N/A      | Governance: product code not in research repo             |
+| REQ-020 | PHASE-01 | Lifecycle commands (catalog complete PHASE-02)            |
+| REQ-021 | PHASE-01 | Non-interactive                                           |
+| REQ-022 | PHASE-01 | validate/plan write-free                                  |
+| REQ-023 | PHASE-01 | Exit codes                                                |
+| REQ-024 | PHASE-01 | clap derive Foundry CLI                                   |
+| REQ-025 | PHASE-02 | version + catalog digest                                  |
+| REQ-030 | PHASE-01 | TOML schema 1                                             |
+| REQ-031 | PHASE-01 | Explicit `--spec`                                         |
+| REQ-032 | PHASE-01 | Archetype `cli` only                                      |
+| REQ-033 | PHASE-01 | Secret denylist                                           |
+| REQ-034 | PHASE-01 | CLI overrides                                             |
+| REQ-040 | PHASE-01 | Plan-as-contract                                          |
+| REQ-041 | PHASE-01 | Plan elements; SPK-100 at MS-004                          |
+| REQ-042 | PHASE-01 | Plan formats                                              |
+| REQ-043 | PHASE-01 | Plan zero dest writes                                     |
+| REQ-050 | PHASE-01 | Stage lifecycle                                           |
+| REQ-051 | PHASE-01 | Emptiness/place; SPK-101                                  |
+| REQ-052 | PHASE-01 | No merge/update v1                                        |
+| REQ-053 | PHASE-01 | Path jail                                                 |
+| REQ-060 | PHASE-02 | Closed embedded catalog offline                           |
+| REQ-061 | PHASE-02 | Custom planner-led engine                                 |
+| REQ-062 | PHASE-02 | Catalog unit set                                          |
+| REQ-063 | PHASE-02 | Emit composition order                                    |
+| REQ-064 | PHASE-02 | Core always emits; MS-021 dogfood                         |
+| REQ-065 | PHASE-02 | TUI generate-time inclusion after MS-021                  |
+| REQ-066 | PHASE-02 | hooks profile                                             |
+| REQ-067 | PHASE-02 | secrets profile                                           |
+| REQ-068 | PHASE-03 | distribution profile                                      |
+| REQ-069 | PHASE-02 | rust-version floor                                        |
+| REQ-070 | PHASE-02 | tracing default full CLI                                  |
+| REQ-080 | PHASE-02 | Toolchain pin file                                        |
+| REQ-081 | PHASE-02 | Edition 2024                                              |
+| REQ-082 | PHASE-02 | rustfmt/clippy                                            |
+| REQ-083 | PHASE-02 | cargo test Required                                       |
+| REQ-084 | PHASE-02 | anyhow/thiserror policy                                   |
+| REQ-085 | PHASE-02 | clap derive Generated CLI                                 |
+| REQ-086 | PHASE-02 | just Default                                              |
+| REQ-087 | PHASE-03 | GHA Core CI; MS-013 freeze                                |
+| REQ-088 | PHASE-04 | Command surface docs; hard exit join                      |
+| REQ-089 | PHASE-02 | Licensing posture                                         |
+| REQ-100 | PHASE-04 | AGENTS + skills layout                                    |
+| REQ-101 | PHASE-04 | AGENTS content contract                                   |
+| REQ-102 | PHASE-04 | Generated Core skills                                     |
+| REQ-103 | PHASE-04 | TUI skill delta                                           |
+| REQ-104 | PHASE-04 | Foundry product skills                                    |
+| REQ-105 | PHASE-04 | DoD embeds command surface                                |
+| REQ-106 | PHASE-04 | Portability baseline                                      |
+| REQ-107 | PHASE-04 | Boundary rules                                            |
+| REQ-108 | PHASE-04 | rust-analyzer not DoD                                     |
+| REQ-120 | PHASE-03 | Default verify tier; MS-012 freeze                        |
+| REQ-121 | PHASE-03 | Verify tools limited                                      |
+| REQ-122 | PHASE-03 | GH template catalog SoT                                   |
+| REQ-123 | PHASE-04 | Teach-as-you-go                                           |
+| REQ-130 | PHASE-01 | Module boundaries Should                                  |
+| REQ-150 | PHASE-05 | Acceptance pure CLI — checklist on exit/MS-019            |
+| REQ-151 | PHASE-05 | Acceptance TUI matrix — checklist on exit/MS-019          |
+| REQ-152 | PHASE-05 | Acceptance agent operability Should                       |
+| REQ-160 | N/A      | Prior-art transfer posture (docs/spec integrity)          |
 
 **REC ledger:** Implementation phases consume surviving REQs only. Spec §28 remains
 **49/49** dispositions. This plan does not drop, renumber, or re-disposition RECs.
@@ -1218,8 +1262,8 @@ This **revised** plan is complete for validation and human acceptance when:
 12. Human approval + `accepted_commit` recorded for stage `plan-revision` (done).
 
 **Delivery authority:** After human acceptance of this stage, this document is
-**`Accepted — delivery authority`** for *how* to sequence the product build. It
-remains subordinate to the revised definitive specification for *what* to build.
+**`Accepted — delivery authority`** for _how_ to sequence the product build. It
+remains subordinate to the revised definitive specification for _what_ to build.
 
 ---
 
