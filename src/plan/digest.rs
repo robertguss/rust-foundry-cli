@@ -99,9 +99,10 @@ fn canonical_plan_lines(plan: &Plan) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::catalog::STUB_CATALOG_DIGEST;
     use crate::plan::model::{
         DependencyDelta, DestinationPolicy, FileMode, NormalizedSpecRecord, PlannedFile,
-        ResolvedComposition, STUB_CATALOG_DIGEST,
+        ResolvedComposition,
     };
     use crate::spec::VerifyMode;
 

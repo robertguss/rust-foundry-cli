@@ -5,8 +5,8 @@
 
 use crate::spec::VerifyMode;
 
-/// Placeholder catalog digest until MS-007 embeds a real closed catalog.
-pub const STUB_CATALOG_DIGEST: &str = "stub-catalog-v0-unembedded";
+/// Placeholder catalog digest (re-export of catalog stub token for plan callers).
+pub use crate::catalog::STUB_CATALOG_DIGEST;
 
 /// Unix-style file mode for a planned path (emit semantics).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
