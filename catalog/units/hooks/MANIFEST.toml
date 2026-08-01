@@ -1,0 +1,8 @@
+id = "hooks"
+kind = "profile"
+description = "pre-commit / hooks scaffolding"
+requires = ["core"]
+
+[[files]]
+path = ".pre-commit-config.yaml"
+template = "templates/pre-commit-config.yaml"

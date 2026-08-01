@@ -1,0 +1,9 @@
+# TUI profile unit (generate-time inclusion only).
+id = "tui"
+kind = "profile"
+description = "ratatui + crossterm TUI modules"
+requires = ["core", "cli"]
+
+[[files]]
+path = "src/tui/mod.rs"
+template = "templates/mod.rs"

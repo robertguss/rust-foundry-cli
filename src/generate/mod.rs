@@ -4,10 +4,13 @@
 
 use std::path::Path;
 
-use crate::catalog::{CatalogView, stub_catalog};
+use crate::catalog::{
+    CatalogView, catalog_view_for_units, default_cli_catalog_view, load_embedded_catalog,
+};
 use crate::fsx::{self, StageHandle};
 use crate::plan::{Plan, construct};
 use crate::render::render;
+use crate::resolve::resolve_composition;
 use crate::spec::EffectiveInputs;
 use crate::verify::{VerifyHook, VerifyOutcome, phase01_stub_hook};
 
@@ -58,11 +61,21 @@ pub struct GenerateResult {
     pub destination: std::path::PathBuf,
 }
 
-/// Run generate lifecycle with default stub catalog and PHASE-01 verify stub.
+/// Run generate lifecycle with embedded catalog view for resolved composition.
 pub fn generate(inputs: &EffectiveInputs) -> Result<GenerateResult, GenerateError> {
-    let catalog = stub_catalog();
+    let catalog = catalog_for_inputs(inputs)?;
     let hook = phase01_stub_hook(inputs.verify);
     generate_with(inputs, &catalog, &hook)
+}
+
+fn catalog_for_inputs(inputs: &EffectiveInputs) -> Result<CatalogView, GenerateError> {
+    let composition =
+        resolve_composition(inputs).map_err(|e| GenerateError::new(e.code, e.message))?;
+    match load_embedded_catalog() {
+        Ok(embedded) => catalog_view_for_units(&embedded, &composition.unit_ids)
+            .map_err(|e| GenerateError::new(e.code, e.message)),
+        Err(_) => Ok(default_cli_catalog_view()),
+    }
 }
 
 /// Full generate with injectable catalog + verify hook (tests).

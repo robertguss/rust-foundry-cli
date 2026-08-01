@@ -18,15 +18,15 @@ foundry plan
     archetype: cli
     ordered_profiles: []
     unit_ids: [core, cli]
-  planned_files: (5)
-    - .gitignore (file) 306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368
-    - AGENTS.md (file) 9cb2a8517e2c5484bc4dec9ad1dbf6c39a2782db533724299293b2bb3f32e22e
-    - Cargo.toml (file) 12f5fe851cb04a2164732cc5b4026e4fd9b563974a1600ac1f0db21e3d85c847
-    - README.md (file) ca893eb8cb9133dd3c0cd438535f11ebe3061076d26ab84d9e0554aba753c8cb
-    - src/main.rs (file) 25c57d120971d61ff6cf71da59d8748afa745a9b3859afd61cdba46230282068
+  planned_files: (6)
+    - .gitignore (file) a3feaef309f1d53f690c0408bb997b8ee54832200eec70f769f0ad55c0e64c99
+    - AGENTS.md (file) ddc22061c1c47107871e8d28c0d4dd5ce588ca17b7b496c006d9f4e1a94a471d
+    - Cargo.toml (file) 8b50c9e00c0510a9e1609d1d1161989a5f22050bcd83b84b2c27663186d6d546
+    - README.md (file) 9a09f6c3829d34c7c5e1c1100ba9a95f1f5807f6898c411aa761abf2a5d072ab
+    - justfile (file) cd4f7da719c0d3a535448925a085aa9eecc971598ed0cd414919af7b8e5eb30e
+    - src/main.rs (file) 2991114fe149f7c0c5afe9919603fb12ab882b29d4c80a652d0ad60f5d4ab2d5
   dependency_deltas: (1)
     - clap 4 features=[derive] (normal)
   ai_native_paths: [AGENTS.md]
   warnings:
-    - stub catalog: PHASE-01 fixture tree until MS-007 embed
     - destination_policy=missing at pure Construct; generate re-validates emptiness (REQ-051)

@@ -69,8 +69,8 @@ pub fn construct(inputs: &EffectiveInputs, catalog: &CatalogView) -> Result<Plan
         destination_policy: DestinationPolicy::Missing,
         plan_sha256: String::new(),
         warnings: vec![
-            "stub catalog: PHASE-01 fixture tree until MS-007 embed".into(),
-            "destination_policy=missing at pure Construct; generate re-validates emptiness (REQ-051)".into(),
+            "destination_policy=missing at pure Construct; generate re-validates emptiness (REQ-051)"
+                .into(),
         ],
     };
 

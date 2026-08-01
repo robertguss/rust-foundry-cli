@@ -1,0 +1,6 @@
+id = "distribution"
+kind = "profile"
+description = "Optional cargo-dist profile (stub until PHASE-03)"
+requires = ["core", "cli"]
+
+# Empty file set in PHASE-02; cargo-dist wiring is MS-014.

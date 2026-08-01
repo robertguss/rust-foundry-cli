@@ -42,11 +42,14 @@ fn redact_plan_json(raw: &str) -> String {
 fn redact_plan_text(raw: &str) -> String {
     let mut out = raw.to_string();
     out = out.replace(VERSION, "<FOUNDRY_VERSION>");
-    // Catalog stub token
-    out = out.replace("stub-catalog-v0-unembedded", "<CATALOG_DIGEST>");
-    // plan_sha256 line
     let mut lines = Vec::new();
     for line in out.lines() {
+        if let Some(rest) = line.strip_prefix("  catalog_digest: ") {
+            if !rest.is_empty() {
+                lines.push("  catalog_digest: <CATALOG_DIGEST>".to_string());
+                continue;
+            }
+        }
         if let Some(rest) = line.strip_prefix("  plan_sha256: ") {
             if rest.len() == 64 && rest.chars().all(|c| c.is_ascii_hexdigit()) {
                 lines.push("  plan_sha256: <PLAN_SHA256>".to_string());

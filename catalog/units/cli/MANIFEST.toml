@@ -1,0 +1,21 @@
+# CLI archetype unit (v1 only archetype).
+id = "cli"
+kind = "archetype"
+description = "Pure CLI project (clap binary)"
+requires = ["core"]
+
+[[files]]
+path = "Cargo.toml"
+template = "templates/Cargo.toml"
+
+[[files]]
+path = "src/main.rs"
+template = "templates/main.rs"
+
+[[files]]
+path = "README.md"
+template = "templates/README.md"
+
+[[files]]
+path = "justfile"
+template = "templates/justfile"

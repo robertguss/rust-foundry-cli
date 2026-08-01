@@ -1,0 +1,13 @@
+# Core catalog unit — always present.
+id = "core"
+kind = "core"
+description = "Always-on Core scaffolding (toolchain, gitignore, AGENTS)"
+requires = []
+
+[[files]]
+path = "AGENTS.md"
+template = "templates/AGENTS.md"
+
+[[files]]
+path = ".gitignore"
+template = "templates/gitignore"

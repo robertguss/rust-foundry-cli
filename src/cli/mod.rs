@@ -7,10 +7,11 @@ use std::process::ExitCode;
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::VERSION;
-use crate::catalog::stub_catalog;
+use crate::catalog::{self, default_cli_catalog_view, load_embedded_catalog, sample_spec_toml};
 use crate::generate::{self, GenerateError};
 use crate::plan::{ConstructError, construct};
 use crate::report::{ReportFormat, format_error_json, format_plan};
+use crate::resolve::resolve_composition;
 use crate::spec::{
     CliOverrides, EffectiveInputs, SpecError, VerifyMode, load_spec, normalize_effective_inputs,
 };
@@ -89,7 +90,31 @@ enum Commands {
         #[arg(long = "verify", value_enum)]
         verify: Option<CliVerifyMode>,
     },
-    // catalog lands in PHASE-02 / MS-007
+    /// Catalog inspection (offline; REQ-025).
+    Catalog {
+        #[command(subcommand)]
+        command: CatalogCommands,
+    },
+    /// Emit a sample Project Spec TOML (convenience; validates with `foundry validate`).
+    SampleSpec {
+        /// Project name in the sample.
+        #[arg(long = "name", default_value = "example-cli")]
+        name: String,
+        /// Optional profile ids to include (e.g. tui).
+        #[arg(long = "profile", value_name = "ID")]
+        profiles: Vec<String>,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+enum CatalogCommands {
+    /// List closed catalog unit ids.
+    List,
+    /// Show one unit manifest summary.
+    Show {
+        /// Unit id (core, cli, tui, hooks, secrets, distribution).
+        id: String,
+    },
 }
 
 /// CLI verify override values (matches TOML set).
@@ -139,7 +164,11 @@ pub fn run() -> ExitCode {
 fn execute(cli: Cli) -> Result<(), ExitCode> {
     match cli.command {
         Commands::Version => {
+            let digest = load_embedded_catalog()
+                .map(|c| c.digest)
+                .unwrap_or_else(|_| "unavailable".into());
             println!("foundry {VERSION}");
+            println!("catalog_digest: {digest}");
             Ok(())
         }
         Commands::Validate {
@@ -170,7 +199,11 @@ fn execute(cli: Cli) -> Result<(), ExitCode> {
                     return Err(code);
                 }
             };
-            let plan = construct(&inputs, &stub_catalog())
+            let catalog = catalog_view_for_effective(&inputs).map_err(|e| {
+                eprintln!("error[{}]: {}", e.0, e.1);
+                ExitCode::from(1)
+            })?;
+            let plan = construct(&inputs, &catalog)
                 .map_err(|e| emit_construct_error(&e, report_format))?;
             let body = format_plan(&plan, report_format);
             emit_report(&body, out.as_deref())?;
@@ -190,6 +223,59 @@ fn execute(cli: Cli) -> Result<(), ExitCode> {
             println!("  files: {}", result.plan.planned_files.len());
             Ok(())
         }
+        Commands::Catalog { command } => match command {
+            CatalogCommands::List => {
+                let cat = load_embedded_catalog().map_err(|e| {
+                    eprintln!("error[{}]: {}", e.code, e.message);
+                    ExitCode::from(1)
+                })?;
+                println!("catalog_digest: {}", cat.digest);
+                for (id, unit) in &cat.units {
+                    println!(
+                        "{id}\t{}\trequires=[{}]",
+                        unit.kind,
+                        unit.requires.join(",")
+                    );
+                }
+                Ok(())
+            }
+            CatalogCommands::Show { id } => {
+                let cat = load_embedded_catalog().map_err(|e| {
+                    eprintln!("error[{}]: {}", e.code, e.message);
+                    ExitCode::from(1)
+                })?;
+                let unit = cat.units.get(&id).ok_or_else(|| {
+                    eprintln!("error[catalog.unknown_unit]: unknown unit {id:?}");
+                    ExitCode::from(1)
+                })?;
+                println!("id: {}", unit.id);
+                println!("kind: {}", unit.kind);
+                println!("description: {}", unit.description);
+                println!("requires: [{}]", unit.requires.join(", "));
+                println!("files: ({})", unit.files.len());
+                for (path, _) in &unit.files {
+                    println!("  - {path}");
+                }
+                println!("catalog_digest: {}", cat.digest);
+                Ok(())
+            }
+        },
+        Commands::SampleSpec { name, profiles } => {
+            let refs: Vec<&str> = profiles.iter().map(String::as_str).collect();
+            print!("{}", sample_spec_toml(&name, &refs));
+            Ok(())
+        }
+    }
+}
+
+fn catalog_view_for_effective(
+    inputs: &EffectiveInputs,
+) -> Result<catalog::CatalogView, (&'static str, String)> {
+    let composition = resolve_composition(inputs).map_err(|e| (e.code, e.message))?;
+    match load_embedded_catalog() {
+        Ok(embedded) => catalog::catalog_view_for_units(&embedded, &composition.unit_ids)
+            .map_err(|e| (e.code, e.message)),
+        Err(_) => Ok(default_cli_catalog_view()),
     }
 }
 

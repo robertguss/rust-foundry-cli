@@ -23,4 +23,8 @@ fn version_subcommand_prints_package_version() {
         stdout.contains(env!("CARGO_PKG_VERSION")),
         "stdout missing version: {stdout:?}"
     );
+    assert!(
+        stdout.contains("catalog_digest:"),
+        "stdout missing catalog_digest: {stdout:?}"
+    );
 }
