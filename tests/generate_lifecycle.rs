@@ -190,7 +190,13 @@ profiles = []
     )
     .unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_foundry"))
-        .args(["generate", "--spec", spec.to_str().unwrap()])
+        .args([
+            "generate",
+            "--spec",
+            spec.to_str().unwrap(),
+            "--verify",
+            "none",
+        ])
         .output()
         .unwrap();
     assert!(

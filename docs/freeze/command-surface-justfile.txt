@@ -1,0 +1,5 @@
+# Frozen justfile primary gate (MS-012 / REQ-088)
+# just check expands to:
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test

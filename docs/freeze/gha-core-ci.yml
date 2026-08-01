@@ -1,0 +1,17 @@
+# Frozen Generated Project Core GHA command surface (MS-013 / REQ-088)
+# Linux only; host OS matrix excludes non-unix targets.
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: fmt
+        run: cargo fmt --check
+      - name: clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: test
+        run: cargo test

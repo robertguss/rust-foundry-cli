@@ -65,7 +65,7 @@ pub struct GenerateResult {
 pub fn generate(inputs: &EffectiveInputs) -> Result<GenerateResult, GenerateError> {
     let catalog = catalog_for_inputs(inputs)?;
     let hook = phase01_stub_hook(inputs.verify);
-    generate_with(inputs, &catalog, &hook)
+    generate_with(inputs, &catalog, hook.as_ref())
 }
 
 fn catalog_for_inputs(inputs: &EffectiveInputs) -> Result<CatalogView, GenerateError> {

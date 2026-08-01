@@ -1,0 +1,11 @@
+# Release workflow scaffold for distribution profile (Linux/macOS only).
+name: release
+on:
+  push:
+    tags: ["v*"]
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "cargo-dist release placeholder (unix hosts only)"

@@ -1,0 +1,5 @@
+# cargo-dist config scaffold (macOS + Linux targets only — product lock).
+[dist]
+cargo-dist-version = "0.22.1"
+ci = ["github"]
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-apple-darwin"]

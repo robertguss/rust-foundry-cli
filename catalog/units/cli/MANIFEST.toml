@@ -19,3 +19,7 @@ template = "templates/README.md"
 [[files]]
 path = "justfile"
 template = "templates/justfile"
+
+[[files]]
+path = ".github/workflows/ci.yml"
+template = "templates/ci.yml"

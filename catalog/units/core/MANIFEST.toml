@@ -15,3 +15,11 @@ template = "templates/gitignore"
 [[files]]
 path = "rust-toolchain.toml"
 template = "templates/rust-toolchain.toml"
+
+[[files]]
+path = ".agents/skills/quality-gates/SKILL.md"
+template = "templates/quality-gates.md"
+
+[[files]]
+path = ".agents/skills/add-subcommand/SKILL.md"
+template = "templates/add-subcommand.md"

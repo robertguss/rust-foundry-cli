@@ -4,6 +4,8 @@ expression: redacted
 ---
 {
   "ai_native_paths": [
+    ".agents/skills/add-subcommand/SKILL.md",
+    ".agents/skills/quality-gates/SKILL.md",
     "AGENTS.md"
   ],
   "catalog_digest": "<CATALOG_DIGEST>",
@@ -41,12 +43,27 @@ expression: redacted
   "plan_sha256": "<PLAN_SHA256>",
   "planned_files": [
     {
+      "content_digest": "9f995c321568c5e48091748bed710c00d0071528858995908343b5efed0222eb",
+      "mode": "file",
+      "path": ".agents/skills/add-subcommand/SKILL.md"
+    },
+    {
+      "content_digest": "35d72b4197bb3729aa2dda344d85ef8b8e4a686fb871d77ac168ddf08d06013d",
+      "mode": "file",
+      "path": ".agents/skills/quality-gates/SKILL.md"
+    },
+    {
+      "content_digest": "b2090b3690a42d069441b3ce033747df5488ab163524f898b56f6ec5457887fd",
+      "mode": "file",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
       "content_digest": "a3feaef309f1d53f690c0408bb997b8ee54832200eec70f769f0ad55c0e64c99",
       "mode": "file",
       "path": ".gitignore"
     },
     {
-      "content_digest": "ddc22061c1c47107871e8d28c0d4dd5ce588ca17b7b496c006d9f4e1a94a471d",
+      "content_digest": "3a1c031cb6707caa88f16385e2f2c08bc7dbfb7154bb9b40bc9257393feed5e1",
       "mode": "file",
       "path": "AGENTS.md"
     },

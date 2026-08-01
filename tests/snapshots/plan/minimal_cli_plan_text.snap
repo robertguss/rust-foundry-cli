@@ -18,9 +18,12 @@ foundry plan
     archetype: cli
     ordered_profiles: []
     unit_ids: [core, cli]
-  planned_files: (7)
+  planned_files: (10)
+    - .agents/skills/add-subcommand/SKILL.md (file) 9f995c321568c5e48091748bed710c00d0071528858995908343b5efed0222eb
+    - .agents/skills/quality-gates/SKILL.md (file) 35d72b4197bb3729aa2dda344d85ef8b8e4a686fb871d77ac168ddf08d06013d
+    - .github/workflows/ci.yml (file) b2090b3690a42d069441b3ce033747df5488ab163524f898b56f6ec5457887fd
     - .gitignore (file) a3feaef309f1d53f690c0408bb997b8ee54832200eec70f769f0ad55c0e64c99
-    - AGENTS.md (file) ddc22061c1c47107871e8d28c0d4dd5ce588ca17b7b496c006d9f4e1a94a471d
+    - AGENTS.md (file) 3a1c031cb6707caa88f16385e2f2c08bc7dbfb7154bb9b40bc9257393feed5e1
     - Cargo.toml (file) 8b50c9e00c0510a9e1609d1d1161989a5f22050bcd83b84b2c27663186d6d546
     - README.md (file) 9a09f6c3829d34c7c5e1c1100ba9a95f1f5807f6898c411aa761abf2a5d072ab
     - justfile (file) cd4f7da719c0d3a535448925a085aa9eecc971598ed0cd414919af7b8e5eb30e
@@ -28,6 +31,6 @@ foundry plan
     - src/main.rs (file) 2991114fe149f7c0c5afe9919603fb12ab882b29d4c80a652d0ad60f5d4ab2d5
   dependency_deltas: (1)
     - clap 4 features=[derive] (normal)
-  ai_native_paths: [AGENTS.md]
+  ai_native_paths: [.agents/skills/add-subcommand/SKILL.md, .agents/skills/quality-gates/SKILL.md, AGENTS.md]
   warnings:
     - destination_policy=missing at pure Construct; generate re-validates emptiness (REQ-051)

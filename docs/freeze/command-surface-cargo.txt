@@ -1,0 +1,4 @@
+# Frozen cargo fallback primary gate when just is missing (MS-012 / SPK-103)
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test

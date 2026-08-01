@@ -1,6 +1,12 @@
 id = "distribution"
 kind = "profile"
-description = "Optional cargo-dist profile (stub until PHASE-03)"
+description = "Optional cargo-dist profile (no Windows targets)"
 requires = ["core", "cli"]
 
-# Empty file set in PHASE-02; cargo-dist wiring is MS-014.
+[[files]]
+path = "dist-workspace.toml"
+template = "templates/dist-workspace.toml"
+
+[[files]]
+path = ".github/workflows/release.yml"
+template = "templates/release.yml"
