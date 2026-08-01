@@ -66,6 +66,11 @@ expression: redacted
       "path": "justfile"
     },
     {
+      "content_digest": "55298905deb5fab7ccb177ffc719cc501277d8d5cf9c7ed38ccccc418f1ea76f",
+      "mode": "file",
+      "path": "rust-toolchain.toml"
+    },
+    {
       "content_digest": "2991114fe149f7c0c5afe9919603fb12ab882b29d4c80a652d0ad60f5d4ab2d5",
       "mode": "file",
       "path": "src/main.rs"

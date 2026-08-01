@@ -11,3 +11,7 @@ template = "templates/AGENTS.md"
 [[files]]
 path = ".gitignore"
 template = "templates/gitignore"
+
+[[files]]
+path = "rust-toolchain.toml"
+template = "templates/rust-toolchain.toml"
